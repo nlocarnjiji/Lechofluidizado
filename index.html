@@ -8,127 +8,239 @@
 <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monospace;background:#000;}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monospace;background:#060a14;}
 
-/* ── SPLASH INTRODUCTORIO ── */
-#splash{position:fixed;inset:0;z-index:99999;background:#060a14;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:24px 20px 32px;}
-.sp-logo{font-size:52px;margin-bottom:8px;}
-.sp-titulo{color:#5eead4;font-size:20px;font-weight:bold;letter-spacing:3px;text-align:center;margin-bottom:4px;}
-.sp-sub{color:rgba(94,234,212,0.6);font-size:12px;letter-spacing:2px;text-align:center;margin-bottom:20px;}
-.sp-card{background:rgba(255,255,255,0.04);border:1px solid rgba(94,234,212,0.2);border-radius:12px;padding:14px 16px;margin-bottom:12px;width:100%;max-width:360px;}
-.sp-card-titulo{color:#5eead4;font-size:11px;font-weight:bold;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase;}
-.sp-card p{color:rgba(255,255,255,0.7);font-size:12px;line-height:1.7;}
+/* ═══ SPLASH ═══ */
+#splash{
+  position:fixed;inset:0;z-index:99999;
+  background:linear-gradient(160deg,#060a14 0%,#0d1a2e 50%,#060a14 100%);
+  display:flex;flex-direction:column;align-items:center;
+  overflow-y:auto;padding:28px 18px 36px;gap:14px;
+}
+.sp-logo{font-size:56px;text-align:center;}
+.sp-titulo{
+  color:#5eead4;font-size:22px;font-weight:bold;
+  letter-spacing:3px;text-align:center;
+}
+.sp-sub{
+  color:rgba(94,234,212,0.55);font-size:11px;
+  letter-spacing:2.5px;text-align:center;margin-bottom:4px;
+}
+.sp-divider{
+  width:60px;height:2px;
+  background:linear-gradient(90deg,transparent,#5eead4,transparent);
+  margin:2px auto;
+}
+.sp-card{
+  background:rgba(94,234,212,0.05);
+  border:1px solid rgba(94,234,212,0.18);
+  border-radius:14px;padding:14px 16px;
+  width:100%;max-width:380px;
+}
+.sp-card-tit{
+  color:#5eead4;font-size:10px;font-weight:bold;
+  letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:9px;display:flex;align-items:center;gap:6px;
+}
+.sp-card p{color:rgba(255,255,255,0.68);font-size:12px;line-height:1.75;}
 .sp-card strong{color:#f59e0b;}
-.sp-regimenes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
-.sp-reg{border-radius:8px;padding:8px 10px;font-size:11px;font-weight:bold;letter-spacing:1px;}
-.sp-reg.fijo     {background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.4);}
-.sp-reg.minima   {background:rgba(245,158,11,0.15);color:#fde68a;border:1px solid rgba(245,158,11,0.4);}
-.sp-reg.fluid    {background:rgba(34,197,94,0.15);color:#86efac;border:1px solid rgba(34,197,94,0.4);}
-.sp-reg.arrastre {background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);}
-.sp-reg span{display:block;font-size:10px;font-weight:normal;opacity:0.75;margin-top:2px;letter-spacing:0;}
-.sp-vars{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
-.sp-var{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);font-size:12px;}
-.sp-var b{color:#a78bfa;min-width:36px;}
-#btn-iniciar{padding:14px 44px;border:2px solid #5eead4;background:transparent;color:#5eead4;font-family:'Courier New',monospace;font-size:15px;font-weight:bold;letter-spacing:2px;border-radius:10px;cursor:pointer;margin-top:8px;width:100%;max-width:360px;}
-#btn-iniciar:active{background:rgba(94,234,212,0.1);}
-#splash-error{color:#ef4444;font-size:12px;display:none;max-width:340px;line-height:1.6;margin-top:8px;text-align:center;}
+.sp-regs{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sp-reg{
+  border-radius:10px;padding:9px 10px;
+  font-size:10px;font-weight:bold;letter-spacing:0.8px;line-height:1;
+}
+.sp-reg span{display:block;font-size:9px;font-weight:normal;opacity:0.72;margin-top:4px;letter-spacing:0;}
+.reg-fijo    {background:rgba(59,130,246,0.12);color:#93c5fd;border:1px solid rgba(59,130,246,0.35);}
+.reg-min     {background:rgba(245,158,11,0.12);color:#fde68a;border:1px solid rgba(245,158,11,0.35);}
+.reg-flu     {background:rgba(34,197,94,0.12);color:#86efac;border:1px solid rgba(34,197,94,0.35);}
+.reg-arr     {background:rgba(239,68,68,0.12);color:#fca5a5;border:1px solid rgba(239,68,68,0.35);}
+.sp-vars{display:flex;flex-direction:column;gap:8px;}
+.sp-var{
+  display:flex;align-items:center;gap:10px;
+  color:rgba(255,255,255,0.68);font-size:12px;
+  background:rgba(255,255,255,0.03);
+  border-radius:8px;padding:7px 10px;
+  border:1px solid rgba(255,255,255,0.07);
+}
+.sp-var b{color:#a78bfa;min-width:28px;font-size:13px;}
+.sp-steps{display:flex;flex-direction:column;gap:7px;}
+.sp-step{
+  display:flex;align-items:flex-start;gap:10px;
+  color:rgba(255,255,255,0.65);font-size:12px;
+}
+.sp-step-n{
+  background:rgba(94,234,212,0.15);color:#5eead4;
+  border-radius:50%;width:22px;height:22px;min-width:22px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:bold;
+}
+#btn-iniciar{
+  padding:15px 0;border:2px solid #5eead4;
+  background:rgba(94,234,212,0.06);color:#5eead4;
+  font-family:'Courier New',monospace;font-size:14px;
+  font-weight:bold;letter-spacing:2px;border-radius:12px;
+  cursor:pointer;width:100%;max-width:380px;
+  transition:all 0.2s;margin-top:4px;
+}
+#btn-iniciar:active{background:rgba(94,234,212,0.18);}
+#splash-error{
+  color:#ef4444;font-size:12px;display:none;
+  max-width:360px;line-height:1.6;text-align:center;
+}
 
-/* ── PANEL SUPERIOR ── */
-#panel-top{position:fixed;top:0;left:0;width:100%;background:rgba(6,10,20,0.95);border-bottom:2px solid rgba(94,234,212,0.25);padding:8px 12px 10px;z-index:9999;display:none;flex-direction:column;gap:7px;}
-#chip-regimen{display:inline-flex;align-items:center;justify-content:center;padding:5px 16px;border-radius:24px;font-size:12px;font-weight:bold;letter-spacing:1.5px;width:fit-content;transition:all 0.4s;}
-.r-fijo      {background:rgba(59,130,246,0.2);color:#93c5fd;border:1.5px solid #3b82f6;}
-.r-minima    {background:rgba(250,204,21,0.2);color:#fde68a;border:1.5px solid #f59e0b;}
-.r-fluidizado{background:rgba(34,197,94,0.2);color:#86efac;border:1.5px solid #22c55e;}
-.r-arrastre  {background:rgba(239,68,68,0.2);color:#fca5a5;border:1.5px solid #ef4444;}
+/* ═══ PANEL SUPERIOR ═══ */
+#panel-top{
+  position:fixed;top:0;left:0;width:100%;
+  background:rgba(6,10,20,0.95);
+  border-bottom:2px solid rgba(94,234,212,0.2);
+  padding:8px 12px 10px;z-index:9999;
+  display:none;flex-direction:column;gap:7px;
+}
+#chip-reg{
+  display:inline-flex;align-items:center;
+  padding:5px 16px;border-radius:24px;
+  font-size:12px;font-weight:bold;letter-spacing:1.5px;
+  width:fit-content;transition:all 0.4s;
+}
+.r-fijo      {background:rgba(59,130,246,0.18);color:#93c5fd;border:1.5px solid #3b82f6;}
+.r-minima    {background:rgba(245,158,11,0.18);color:#fde68a;border:1.5px solid #f59e0b;}
+.r-fluidizado{background:rgba(34,197,94,0.18);color:#86efac;border:1.5px solid #22c55e;}
+.r-arrastre  {background:rgba(239,68,68,0.18);color:#fca5a5;border:1.5px solid #ef4444;}
 #grid-res{display:grid;grid-template-columns:repeat(3,1fr);gap:5px 10px;}
 .ri{display:flex;flex-direction:column;gap:1px;}
-.rl{color:rgba(94,234,212,0.6);font-size:9px;letter-spacing:0.5px;text-transform:uppercase;}
+.rl{color:rgba(94,234,212,0.55);font-size:9px;letter-spacing:0.5px;text-transform:uppercase;}
 .rv{color:#f1f5f9;font-size:13px;font-weight:bold;}
 
-/* ── MANÓMETRO ── */
-#mano-wrap{position:fixed;right:8px;top:50%;transform:translateY(-50%);z-index:9999;display:none;flex-direction:column;align-items:center;gap:3px;}
-.mano-lbl{color:rgba(94,234,212,0.8);font-size:10px;letter-spacing:0.8px;}
-#mano-val{color:#fff;font-size:10px;font-weight:bold;text-align:center;min-width:46px;}
-#mano-track{width:24px;height:160px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(94,234,212,0.25);border-radius:12px;position:relative;overflow:hidden;}
-#mano-fill{position:absolute;bottom:0;left:0;width:100%;height:0%;border-radius:12px;transition:height 0.3s ease,background 0.4s;}
-#mano-linea{position:absolute;left:-4px;width:calc(100% + 8px);height:2px;background:rgba(250,204,21,0.9);z-index:2;}
-#mano-mf-tag{color:rgba(250,204,21,0.8);font-size:9px;}
+/* ═══ MANÓMETRO ═══ */
+#mano-wrap{
+  position:fixed;right:8px;top:50%;transform:translateY(-50%);
+  z-index:9999;display:none;flex-direction:column;
+  align-items:center;gap:3px;
+}
+.ml{color:rgba(94,234,212,0.75);font-size:9px;letter-spacing:0.8px;}
+#mano-val{color:#fff;font-size:10px;font-weight:bold;text-align:center;min-width:44px;}
+#mano-track{
+  width:22px;height:155px;
+  background:rgba(255,255,255,0.05);
+  border:1.5px solid rgba(94,234,212,0.22);
+  border-radius:11px;position:relative;overflow:hidden;
+}
+#mano-fill{position:absolute;bottom:0;left:0;width:100%;height:0%;border-radius:11px;transition:height 0.3s,background 0.4s;}
+#mano-linea{position:absolute;left:-4px;width:calc(100% + 8px);height:2px;background:rgba(245,158,11,0.9);z-index:2;}
+#mano-tag{color:rgba(245,158,11,0.8);font-size:9px;}
 
-/* ── BADGE PAUSA ── */
-#badge-pausa{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(6,10,20,0.9);border:1.5px solid rgba(94,234,212,0.5);color:#5eead4;font-size:13px;letter-spacing:2px;padding:8px 20px;border-radius:24px;z-index:9999;pointer-events:none;}
+/* ═══ BADGE PAUSA ═══ */
+#badge-pausa{
+  display:none;position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(6,10,20,0.92);
+  border:1.5px solid rgba(94,234,212,0.5);
+  color:#5eead4;font-size:13px;letter-spacing:2px;
+  padding:8px 22px;border-radius:24px;
+  z-index:9999;pointer-events:none;
+}
 
-/* ── PANEL INFERIOR ── */
-#panel-bot{position:fixed;bottom:0;left:0;width:calc(100% - 48px);background:rgba(6,10,20,0.95);border-top:2px solid rgba(94,234,212,0.25);padding:12px 14px 16px;z-index:9999;display:none;flex-direction:column;gap:11px;}
+/* ═══ PANEL INFERIOR ═══ */
+#panel-bot{
+  position:fixed;bottom:0;left:0;width:calc(100% - 46px);
+  background:rgba(6,10,20,0.95);
+  border-top:2px solid rgba(94,234,212,0.2);
+  padding:11px 13px 15px;z-index:9999;
+  display:none;flex-direction:column;gap:11px;
+}
 .srow{display:flex;align-items:center;gap:8px;}
-.slbl{color:rgba(94,234,212,0.85);font-size:10px;min-width:108px;line-height:1.3;}
+.slbl{color:rgba(94,234,212,0.82);font-size:10px;min-width:110px;line-height:1.3;}
 .srow input[type=range]{flex:1;height:5px;cursor:pointer;border-radius:3px;outline:none;-webkit-appearance:none;}
-#sU{accent-color:#22c55e;}
-#sdp{accent-color:#5eead4;}
+#sU  {accent-color:#22c55e;}
+#sdp {accent-color:#5eead4;}
 #sEps{accent-color:#a78bfa;}
-.sval{font-size:12px;font-weight:bold;min-width:58px;text-align:right;}
-#vU{color:#22c55e;}
-#vdp{color:#5eead4;}
+.sv{font-size:12px;font-weight:bold;min-width:56px;text-align:right;}
+#vU  {color:#22c55e;}
+#vdp {color:#5eead4;}
 #vEps{color:#a78bfa;}
-.eps-ctrl{display:flex;gap:6px;align-items:center;padding:0 2px;}
-#btn-eps-mode{padding:3px 10px;border:1.5px solid rgba(94,234,212,0.5);background:transparent;color:#5eead4;font-family:'Courier New',monospace;font-size:10px;border-radius:6px;cursor:pointer;}
-#eps-mode-lbl{font-size:9px;color:rgba(255,255,255,0.45);}
-#btn-pausa{align-self:center;padding:9px 36px;border:2px solid #5eead4;background:transparent;color:#5eead4;font-family:'Courier New',monospace;font-size:13px;font-weight:bold;letter-spacing:2px;border-radius:8px;cursor:pointer;transition:all 0.2s;}
+.eps-row{display:flex;gap:7px;align-items:center;padding:0 2px;}
+.eps-lbl{font-size:10px;color:rgba(94,234,212,0.65);}
+#btn-eps{
+  padding:4px 11px;
+  border:1.5px solid rgba(94,234,212,0.5);
+  background:transparent;color:#5eead4;
+  font-family:'Courier New',monospace;font-size:10px;
+  border-radius:6px;cursor:pointer;
+}
+#eps-desc{font-size:9px;color:rgba(255,255,255,0.4);}
+#btn-pausa{
+  align-self:center;padding:9px 36px;
+  border:2px solid #5eead4;background:transparent;color:#5eead4;
+  font-family:'Courier New',monospace;font-size:13px;
+  font-weight:bold;letter-spacing:2px;border-radius:8px;
+  cursor:pointer;transition:all 0.2s;
+}
 #btn-pausa.pausado{background:#5eead4;color:#060a14;}
 </style>
 </head>
 <body>
 
-<!-- ════ SPLASH INTRODUCTORIO ════ -->
+<!-- ═══════════════════════════════════
+     SPLASH INTRODUCTORIO
+════════════════════════════════════ -->
 <div id="splash">
   <div class="sp-logo">⚗️</div>
-  <div class="sp-titulo">LECHO FLUIDIZADO AR</div>
+  <div class="sp-titulo">LECHO FLUIDIZADO</div>
   <div class="sp-sub">SIMULADOR DE REALIDAD AUMENTADA</div>
+  <div class="sp-divider"></div>
 
   <div class="sp-card">
-    <div class="sp-card-titulo">¿Qué es un lecho fluidizado?</div>
-    <p>Un <strong>lecho fluidizado</strong> es un sistema en el que partículas sólidas son suspendidas por un fluido en movimiento ascendente. Cuando la velocidad del gas supera la <strong>velocidad mínima de fluidización (U<sub>mf</sub>)</strong>, las partículas se separan y el lecho se comporta como un fluido, mejorando la transferencia de calor y masa.</p>
+    <div class="sp-card-tit">🔬 ¿Qué es un lecho fluidizado?</div>
+    <p>Sistema en el que partículas sólidas son <strong>suspendidas</strong> por un fluido en movimiento ascendente. Al superar la <strong>velocidad mínima de fluidización (Umf)</strong>, las partículas se separan y el lecho se comporta como un fluido, logrando excelente transferencia de calor y masa. Aplicado en refinación de petróleo, combustión de carbón y síntesis de catalizadores.</p>
   </div>
 
   <div class="sp-card">
-    <div class="sp-card-titulo">Regímenes de operación</div>
-    <div class="sp-regimenes">
-      <div class="sp-reg fijo">🔵 LECHO FIJO<span>U &lt; Umf · Partículas inmóviles</span></div>
-      <div class="sp-reg minima">🟡 FLUIDIZ. MÍNIMA<span>U ≈ Umf · Burbujeo incipiente</span></div>
-      <div class="sp-reg fluid">🟢 FLUIDIZADO<span>U &gt; Umf · Partículas en suspensión</span></div>
-      <div class="sp-reg arrastre">🔴 ARRASTRE<span>U &gt; Ut · Partículas arrastradas</span></div>
+    <div class="sp-card-tit">📊 Regímenes de operación</div>
+    <div class="sp-regs">
+      <div class="sp-reg reg-fijo">🔵 LECHO FIJO<span>U &lt; Umf · Partículas inmóviles · ΔP sube con U</span></div>
+      <div class="sp-reg reg-min">🟡 FLUIDIZ. MÍNIMA<span>U ≈ Umf · Burbujeo incipiente · ΔP = ΔPmf</span></div>
+      <div class="sp-reg reg-flu">🟢 LECHO FLUIDIZADO<span>U &gt; Umf · Suspensión estable · Lecho se expande</span></div>
+      <div class="sp-reg reg-arr">🔴 ARRASTRE<span>U &gt; Ut · Partículas salen · Transporte neumático</span></div>
     </div>
   </div>
 
   <div class="sp-card">
-    <div class="sp-card-titulo">Sistema simulado</div>
-    <p><strong>Sólido:</strong> Arena de sílice (SiO₂) · ρp = 2650 kg/m³ · φs = 0.86<br>
-    <strong>Fluido:</strong> Aire a 25°C · ρf = 1.184 kg/m³<br>
-    <strong>Modelo:</strong> Kunii &amp; Levenspiel (1991) · Richardson &amp; Zaki (1954)</p>
+    <div class="sp-card-tit">⚙️ Sistema simulado</div>
+    <p>
+      <strong>Sólido:</strong> Arena de sílice SiO₂ · ρp = 2650 kg/m³ · φs = 0.86 · Geldart B<br>
+      <strong>Fluido:</strong> Aire a 25°C · ρf = 1.184 kg/m³ · μ = 1.849×10⁻⁵ Pa·s<br>
+      <strong>Modelos:</strong> Kunii &amp; Levenspiel (1991) · Richardson &amp; Zaki (1954) · McCabe et al. (2005)
+    </p>
   </div>
 
   <div class="sp-card">
-    <div class="sp-card-titulo">Variables interactivas (sliders)</div>
+    <div class="sp-card-tit">🎚️ Variables interactivas</div>
     <div class="sp-vars">
-      <div class="sp-var"><b>U</b> Velocidad superficial del fluido (m/s)</div>
-      <div class="sp-var"><b>dp</b> Diámetro de partícula (µm)</div>
-      <div class="sp-var"><b>ε</b> Porosidad del lecho (adimensional)</div>
+      <div class="sp-var"><b>U</b> Velocidad superficial del fluido (m/s) — controla el régimen</div>
+      <div class="sp-var"><b>dp</b> Diámetro de partícula (µm) — afecta Umf y Ut</div>
+      <div class="sp-var"><b>ε</b> Porosidad del lecho — calculada o fijada manualmente</div>
     </div>
   </div>
 
-  <div class="sp-card" style="border-color:rgba(94,234,212,0.4);">
-    <div class="sp-card-titulo">📱 Cómo usar</div>
-    <p>1. Activa la cámara con el botón de abajo<br>
-    2. Apunta al <strong>marcador Hiro</strong> pegado en la pared<br>
-    3. El reactor aparece en 3D — usa los sliders para cambiar las condiciones</p>
+  <div class="sp-card" style="border-color:rgba(94,234,212,0.35);">
+    <div class="sp-card-tit">📱 Cómo usar el simulador</div>
+    <div class="sp-steps">
+      <div class="sp-step"><div class="sp-step-n">1</div><span>Imprime o muestra el <strong style="color:#5eead4">marcador Hiro</strong> en una pared o superficie vertical</span></div>
+      <div class="sp-step"><div class="sp-step-n">2</div><span>Presiona <strong style="color:#5eead4">Activar Cámara</strong> y apunta horizontalmente al marcador</span></div>
+      <div class="sp-step"><div class="sp-step-n">3</div><span>El reactor 3D aparece sobre el marcador — mueve los sliders para cambiar las condiciones de operación</span></div>
+      <div class="sp-step"><div class="sp-step-n">4</div><span>Usa <strong style="color:#5eead4">PAUSA</strong> para congelar la animación y analizar los valores del panel</span></div>
+    </div>
   </div>
 
   <button id="btn-iniciar">📷 ACTIVAR CÁMARA</button>
   <div id="splash-error"></div>
 </div>
 
-<!-- ════ PANEL SUPERIOR ════ -->
+<!-- ═══════════════════════════════════
+     PANEL SUPERIOR
+════════════════════════════════════ -->
 <div id="panel-top">
-  <div id="chip-regimen" class="r-fijo">🔵 LECHO FIJO</div>
+  <div id="chip-reg" class="r-fijo">🔵 LECHO FIJO</div>
   <div id="grid-res">
     <div class="ri"><span class="rl">Umf (m/s)</span><span class="rv" id="rUmf">—</span></div>
     <div class="ri"><span class="rl">Ut (m/s)</span><span class="rv" id="rUt">—</span></div>
@@ -142,63 +254,51 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monos
   </div>
 </div>
 
-<!-- ════ MANÓMETRO ════ -->
+<!-- ═══════════════════════════════════
+     MANÓMETRO
+════════════════════════════════════ -->
 <div id="mano-wrap">
-  <span class="mano-lbl">ΔP</span>
+  <span class="ml">ΔP</span>
   <div id="mano-val">— Pa</div>
   <div id="mano-track">
     <div id="mano-fill"></div>
     <div id="mano-linea" style="bottom:50%"></div>
   </div>
-  <span id="mano-mf-tag">ΔPmf</span>
+  <span id="mano-tag">ΔPmf</span>
 </div>
 
 <div id="badge-pausa">⏸ PAUSADO</div>
 
-<!-- ════ ESCENA AR ════ -->
+<!-- ═══════════════════════════════════
+     ESCENA AR
+════════════════════════════════════ -->
 <a-scene
   arjs="sourceType: webcam; debugUIEnabled: false;"
   vr-mode-ui="enabled: false"
   renderer="antialias: true; alpha: true;"
 >
-  <a-marker
-    preset="hiro"
-    id="marcador"
-    smooth="true"
-    smoothCount="8"
-    smoothTolerance="0.01"
-    smoothThreshold="5"
-  >
-    <!-- Reactor centrado sobre el marcador Hiro
-         Escala: marcador ≈ 1 unidad. Reactor: radio=0.30, alto=0.80
-         Sistema de coordenadas del marcador:
-           Y apunta HACIA ARRIBA (perpendicular al marcador)
-           X va a la derecha, Z va hacia el observador
-         Con el marcador en la PARED, la cámara mira en dirección -Y del marcador
-         Por eso el reactor debe extenderse en el eje Z del marcador (hacia la cámara)
-         Rotamos 90° en X para que el cilindro vertical quede apuntando hacia la cámara
-    -->
-    <a-entity id="reactor-root" rotation="90 0 0" position="0 0.4 0">
+  <a-marker preset="hiro" id="marcador" smooth="true" smoothCount="8" smoothTolerance="0.01" smoothThreshold="5">
+    <a-entity id="root" position="0 0 0">
 
-      <!-- Flechas de gas entrada (distribuidores) -->
-      <a-cone id="f1" position="-0.15 -0.50 0" radius-bottom="0.04" radius-top="0" height="0.12" color="#3b82f6" opacity="0.95"></a-cone>
-      <a-cone id="f2" position="0     -0.50 0" radius-bottom="0.04" radius-top="0" height="0.12" color="#3b82f6" opacity="0.95"></a-cone>
-      <a-cone id="f3" position="0.15  -0.50 0" radius-bottom="0.04" radius-top="0" height="0.12" color="#3b82f6" opacity="0.95"></a-cone>
+      <!-- Base / placa distribuidora -->
+      <a-cylinder position="0 0.01 0" radius="0.35" height="0.03" color="#334155" opacity="0.98"></a-cylinder>
 
-      <!-- Placa distribuidora -->
-      <a-cylinder position="0 -0.43 0" radius="0.28" height="0.025" color="#334155" opacity="0.98"></a-cylinder>
+      <!-- Flechas de gas (entrada) -->
+      <a-cone id="f1" position="-0.18 -0.10 0" radius-bottom="0.05" radius-top="0" height="0.14" color="#3b82f6" opacity="0.95"></a-cone>
+      <a-cone id="f2" position="0     -0.10 0" radius-bottom="0.05" radius-top="0" height="0.14" color="#3b82f6" opacity="0.95"></a-cone>
+      <a-cone id="f3" position="0.18  -0.10 0" radius-bottom="0.05" radius-top="0" height="0.14" color="#3b82f6" opacity="0.95"></a-cone>
 
-      <!-- Cuerpo del reactor — MUY transparente -->
-      <a-cylinder id="col-ar" position="0 0 0" radius="0.28" height="0.82" color="#bfdbfe" opacity="0.04" side="double"></a-cylinder>
+      <!-- Cuerpo reactor — muy transparente -->
+      <a-cylinder position="0 0.42 0" radius="0.34" height="0.80" color="#bfdbfe" opacity="0.04" side="double"></a-cylinder>
 
-      <!-- Contorno cilíndrico visible -->
-      <a-cylinder position="0 0 0" radius="0.29" height="0.82" color="#5eead4" opacity="0.28" open-ended="true" side="double" segments-radial="24"></a-cylinder>
+      <!-- Contorno visible del reactor -->
+      <a-cylinder position="0 0.42 0" radius="0.35" height="0.80" color="#5eead4" opacity="0.30" open-ended="true" side="double" segments-radial="20"></a-cylinder>
 
       <!-- Línea de nivel del lecho -->
-      <a-cylinder id="linea-lecho" position="0 -0.10 0" radius="0.285" height="0.008" color="#f59e0b" opacity="0.95"></a-cylinder>
+      <a-cylinder id="linea-lecho" position="0 0.32 0" radius="0.34" height="0.010" color="#f59e0b" opacity="0.95"></a-cylinder>
 
       <!-- Tapa superior -->
-      <a-cylinder position="0 0.43 0" radius="0.29" height="0.022" color="#5eead4" opacity="0.75"></a-cylinder>
+      <a-cylinder position="0 0.83 0" radius="0.35" height="0.025" color="#5eead4" opacity="0.80"></a-cylinder>
 
       <!-- Contenedor partículas -->
       <a-entity id="cpart"></a-entity>
@@ -208,156 +308,142 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monos
   <a-entity camera></a-entity>
 </a-scene>
 
-<!-- ════ PANEL INFERIOR ════ -->
+<!-- ═══════════════════════════════════
+     PANEL INFERIOR
+════════════════════════════════════ -->
 <div id="panel-bot">
   <div class="srow">
     <span class="slbl">U — vel. fluido (m/s)</span>
     <input type="range" id="sU" min="0" max="0.60" step="0.005" value="0.05"/>
-    <span class="sval" id="vU">0.050 m/s</span>
+    <span class="sv" id="vU">0.050 m/s</span>
   </div>
   <div class="srow">
     <span class="slbl">dp — diám. partícula (µm)</span>
     <input type="range" id="sdp" min="100" max="800" step="10" value="500"/>
-    <span class="sval" id="vdp">500 µm</span>
+    <span class="sv" id="vdp">500 µm</span>
   </div>
   <div class="srow">
     <span class="slbl">ε — porosidad lecho</span>
     <input type="range" id="sEps" min="0.35" max="0.95" step="0.01" value="0.42"/>
-    <span class="sval" id="vEps">0.420</span>
+    <span class="sv" id="vEps">0.420</span>
   </div>
-  <div class="eps-ctrl">
-    <span style="font-size:10px;color:rgba(94,234,212,0.7);">Modo ε:</span>
-    <button id="btn-eps-mode">🔄 CALCULADO</button>
-    <span id="eps-mode-lbl">ε se calcula automáticamente</span>
+  <div class="eps-row">
+    <span class="eps-lbl">Modo ε:</span>
+    <button id="btn-eps">🔄 CALCULADO</button>
+    <span id="eps-desc">ε se calcula automáticamente</span>
   </div>
   <button id="btn-pausa">⏸ PAUSA</button>
 </div>
 
 <script>
 // ════════════════════════════════════════════════
-// PARÁMETROS FIJOS — Arena SiO₂ en Aire 25°C
-// Fuentes: Kunii & Levenspiel Cap.3; Perry's 8ª ed.
+// PARÁMETROS — Arena SiO₂ + Aire 25°C
 // ════════════════════════════════════════════════
-const P={rho_p:2650, rho_f:1.184, mu:1.849e-5, phi_s:0.86, g:9.81};
+const P = {rho_p:2650, rho_f:1.184, mu:1.849e-5, phi_s:0.86, g:9.81};
+const H0 = 0.30; // altura inicial lecho (m)
 
-const E={
+const E = {
   pausado:false, U:0.05, dp:500e-6,
   eps_manual:false, eps_slider:0.42,
   Ar:0, emf:0, eps0:0, Remf:0, Umf:0,
-  Ret:0, n_rz:0, Ut:0,
+  Ret:0, Ut:0, n_rz:0,
   regimen:'fijo', deltaP:0, deltaP_mf:0, eps:0, h:0,
 };
 
-const H0 = 0.30; // altura inicial lecho (m)
-
 // ════════════════════════════════════════════════
-// FÍSICA — Todas las ecuaciones verificadas bibliográficamente
+// FÍSICA
 // ════════════════════════════════════════════════
 function fisica(){
-  const{rho_p,rho_f,mu,phi_s,g}=P;
-  const{U,dp}=E;
+  const {rho_p,rho_f,mu,phi_s,g} = P;
+  const {U, dp} = E;
 
-  // Ar — K&L Cap.3, Ec.(20), p.69
-  const Ar = Math.pow(dp,3)*rho_f*(rho_p-rho_f)*g/Math.pow(mu,2);
+  // Arquímedes — K&L Cap.3, Ec.(20)
+  const Ar = dp**3 * rho_f * (rho_p-rho_f) * g / mu**2;
 
-  // εmf — K&L Cap.3, Tabla 3, p.69 (arena redondeada φs=0.86)
-  const dp_mm = dp*1000;
-  let emf;
-  if(dp_mm<=0.05)      emf=0.56;
-  else if(dp_mm<=0.07) emf=0.56+(dp_mm-0.05)/(0.02)*(0.52-0.56);
-  else if(dp_mm<=0.10) emf=0.52+(dp_mm-0.07)/(0.03)*(0.48-0.52);
-  else if(dp_mm<=0.20) emf=0.48+(dp_mm-0.10)/(0.10)*(0.44-0.48);
-  else if(dp_mm<=0.30) emf=0.44+(dp_mm-0.20)/(0.10)*(0.42-0.44);
-  else                 emf=0.42;
-  const eps0=emf;
+  // εmf — K&L Cap.3, Tabla 3 (arena redondeada φs=0.86)
+  const mm = dp*1000;
+  let emf = mm<=0.05?0.56 : mm<=0.07?0.56+(mm-0.05)/0.02*(0.52-0.56)
+           : mm<=0.10?0.52+(mm-0.07)/0.03*(0.48-0.52)
+           : mm<=0.20?0.48+(mm-0.10)/0.10*(0.44-0.48)
+           : mm<=0.30?0.44+(mm-0.20)/0.10*(0.42-0.44) : 0.42;
+  const eps0 = emf;
 
-  // Wen & Yu — K&L Cap.3, Ec.(26), p.70
-  const Remf = Math.sqrt(33.7*33.7 + 0.0408*Ar) - 33.7;
-  const Umf  = Remf*mu/(rho_f*dp);
+  // Wen & Yu — K&L Cap.3, Ec.(26)
+  const Remf = Math.sqrt(33.7**2 + 0.0408*Ar) - 33.7;
+  const Umf  = Remf * mu / (rho_f * dp);
 
-  // Ut — McCabe 7ª ed., Cap.7, Ec.(7.45) criterio K
-  const K = Math.pow(Ar, 1/3);
+  // Ut — McCabe Cap.7, criterio K=Ar^(1/3), Ec.(7.45)
+  const K = Ar**(1/3);
   let Ut, Ret=0;
   if(K < 2.6){
-    Ut = (g*dp*dp*(rho_p-rho_f))/(18*mu); // Stokes Ec.(7.40)
+    Ut = g*dp**2*(rho_p-rho_f)/(18*mu); // Stokes Ec.(7.40)
   } else if(K > 68.9){
     Ut = 1.75*Math.sqrt(g*dp*(rho_p-rho_f)/rho_f); // Newton Ec.(7.43)
   } else {
-    // Zona intermedia: iteración numérica con CD — McCabe Cap.7, Fig.7.7
-    let Ut_i = Math.sqrt(4*g*dp*(rho_p-rho_f)/(3*rho_f));
-    for(let k=0;k<60;k++){
-      const Rep = rho_f*Ut_i*dp/mu;
-      const CD  = Rep<1 ? 24/Rep : 18.5/Math.pow(Rep,0.6);
-      const Ut_n= Math.sqrt(4*g*dp*(rho_p-rho_f)/(3*rho_f*CD));
-      if(Math.abs(Ut_n-Ut_i)/Ut_i < 1e-7) break;
-      Ut_i=Ut_n;
+    let ui = Math.sqrt(4*g*dp*(rho_p-rho_f)/(3*rho_f));
+    for(let k=0;k<80;k++){
+      const Re = rho_f*ui*dp/mu;
+      const CD = Re<1 ? 24/Re : 18.5/Re**0.6;
+      const un = Math.sqrt(4*g*dp*(rho_p-rho_f)/(3*rho_f*CD));
+      if(Math.abs(un-ui)/ui<1e-8) break;
+      ui=un;
     }
-    Ut=Ut_i;
+    Ut=ui;
   }
   Ret = rho_f*Ut*dp/mu;
 
   // Régimen
   const TOL=0.004;
-  let reg;
-  if(U < Umf-TOL)      reg='fijo';
-  else if(U <= Umf+TOL) reg='minima';
-  else if(U < Ut)       reg='fluidizado';
-  else                  reg='arrastre';
+  const reg = U<Umf-TOL?'fijo' : U<=Umf+TOL?'minima' : U<Ut?'fluidizado':'arrastre';
 
   const dPmf = H0*(1-eps0)*(rho_p-rho_f)*g;
   let dP, eps, h, n_rz=0;
 
   if(E.eps_manual){
-    // MODO MANUAL: ε fijada por slider
     eps = Math.max(E.eps_slider, emf);
     h   = H0*(1-eps0)/(1-eps);
     const Uc=Math.max(U,1e-6);
-    dP = h*(150*mu*Uc*Math.pow(1-eps,2)/(phi_s*phi_s*dp*dp*Math.pow(eps,3))
-           +1.75*rho_f*Uc*Uc*(1-eps)/(phi_s*dp*Math.pow(eps,3)));
+    dP  = h*(150*mu*Uc*(1-eps)**2/(phi_s**2*dp**2*eps**3)
+             +1.75*rho_f*Uc**2*(1-eps)/(phi_s*dp*eps**3));
   } else {
-    // MODO CALCULADO según régimen
     if(reg==='fijo'){
       const Uc=Math.max(U,1e-6);
-      dP = H0*(150*mu*Uc*Math.pow(1-eps0,2)/(phi_s*phi_s*dp*dp*Math.pow(eps0,3))
-              +1.75*rho_f*Uc*Uc*(1-eps0)/(phi_s*dp*Math.pow(eps0,3)));
+      dP = H0*(150*mu*Uc*(1-eps0)**2/(phi_s**2*dp**2*eps0**3)
+               +1.75*rho_f*Uc**2*(1-eps0)/(phi_s*dp*eps0**3));
       eps=eps0; h=H0;
     } else if(reg==='minima'){
       dP=dPmf; eps=emf; h=H0*(1-eps0)/(1-emf);
     } else if(reg==='fluidizado'){
       dP=dPmf;
-      if(Ret<0.2)      n_rz=4.65;
-      else if(Ret<1)   n_rz=4.35*Math.pow(Ret,-0.03);
-      else if(Ret<500) n_rz=4.45*Math.pow(Ret,-0.1);
-      else             n_rz=2.39;
-      eps=Math.pow(Math.min(U/Ut,0.9995),1/n_rz);
-      eps=Math.max(eps,emf);
-      h=H0*(1-eps0)/(1-eps);
+      n_rz = Ret<0.2?4.65 : Ret<1?4.35*Ret**-0.03 : Ret<500?4.45*Ret**-0.1 : 2.39;
+      eps  = Math.max(Math.min(U/Ut,0.9995)**(1/n_rz), emf);
+      h    = H0*(1-eps0)/(1-eps);
     } else {
       dP=dPmf*0.55; eps=0.96; h=H0*(1-eps0)/(1-eps);
     }
-    // Sincronizar slider ε
-    document.getElementById('sEps').value=eps.toFixed(2);
-    document.getElementById('vEps').textContent=eps.toFixed(3);
+    document.getElementById('sEps').value = eps.toFixed(2);
+    document.getElementById('vEps').textContent = eps.toFixed(3);
   }
 
-  Object.assign(E,{Ar,emf,eps0,Remf,Umf,Ret,n_rz,Ut,regimen:reg,deltaP:dP,deltaP_mf:dPmf,eps,h});
+  Object.assign(E,{Ar,emf,eps0,Remf,Umf,Ret,Ut,n_rz,regimen:reg,deltaP:dP,deltaP_mf:dPmf,eps,h});
 }
 
 // ════════════════════════════════════════════════
-// 50 PARTÍCULAS — escala pequeña dentro del reactor
-// Reactor: centro en Y=0, radio=0.28, alto=0.82 → Y de -0.41 a +0.41
+// PARTÍCULAS — 50 esferas dentro del reactor
+// Reactor: base Y=0.02, tope interior Y=0.80
+// Partículas: X en [-0.28,0.28], Y en [0.05,0.78]
 // ════════════════════════════════════════════════
-const N=50;
-const parts=[];
+const N=50, parts=[];
 const cpart=document.getElementById('cpart');
+const YB=0.05, YT=0.78, RM=0.28;
 
 for(let i=0;i<N;i++){
-  const nc=8, ci=i%nc, ri=Math.floor(i/nc);
-  const x0 = -0.20 + ci*(0.40/(nc-1));
-  const y0 = -0.38 + ri*0.080;
-  const z0 = (Math.random()-0.5)*0.04;
+  const ci=i%8, ri=Math.floor(i/8);
+  const x0=-0.24+ci*(0.48/7);
+  const y0=YB+ri*0.09;
+  const z0=(Math.random()-0.5)*0.08;
   const s=document.createElement('a-sphere');
-  s.setAttribute('radius','0.018');
+  s.setAttribute('radius','0.022');
   s.setAttribute('position',`${x0.toFixed(4)} ${y0.toFixed(4)} ${z0.toFixed(4)}`);
   s.setAttribute('color','#3b82f6');
   s.setAttribute('opacity','0.97');
@@ -365,8 +451,8 @@ for(let i=0;i<N;i++){
   parts.push({el:s, x0, y:y0, z0, fase:Math.random()*Math.PI*2});
 }
 
-const COLS={fijo:'#3b82f6',minima:'#f59e0b',fluidizado:'#22c55e',arrastre:'#ef4444'};
-const CHIPS={
+const COLS  = {fijo:'#3b82f6',minima:'#f59e0b',fluidizado:'#22c55e',arrastre:'#ef4444'};
+const CHIPS = {
   fijo:      {txt:'🔵 LECHO FIJO',         cls:'r-fijo'},
   minima:    {txt:'🟡 FLUIDIZACIÓN MÍNIMA', cls:'r-minima'},
   fluidizado:{txt:'🟢 LECHO FLUIDIZADO',    cls:'r-fluidizado'},
@@ -374,35 +460,31 @@ const CHIPS={
 };
 
 // ════════════════════════════════════════════════
-// PANEL RESULTADOS
+// PANEL
 // ════════════════════════════════════════════════
 function panelUpdate(){
-  const{Umf,Ut,U,deltaP,deltaP_mf,eps,h,Ar,Remf,regimen}=E;
-  document.getElementById('rUmf').textContent  =Umf.toFixed(4);
-  document.getElementById('rUt').textContent   =Ut.toFixed(4);
-  document.getElementById('rRatio').textContent=Umf>0?(U/Umf).toFixed(2):'—';
-  document.getElementById('rDP').textContent   =deltaP.toFixed(1);
-  document.getElementById('rDPmf').textContent =deltaP_mf.toFixed(1);
-  document.getElementById('rEps').textContent  =eps.toFixed(4);
-  document.getElementById('rH').textContent    =h.toFixed(3);
-  document.getElementById('rAr').textContent   =Ar.toFixed(0);
-  document.getElementById('rRemf').textContent =Remf.toFixed(4);
-  const c=CHIPS[regimen];
-  const chip=document.getElementById('chip-regimen');
+  const {Umf,Ut,U,deltaP,deltaP_mf,eps,h,Ar,Remf,regimen} = E;
+  document.getElementById('rUmf').textContent   = Umf.toFixed(4);
+  document.getElementById('rUt').textContent    = Ut.toFixed(4);
+  document.getElementById('rRatio').textContent = Umf>0?(U/Umf).toFixed(2):'—';
+  document.getElementById('rDP').textContent    = deltaP.toFixed(1);
+  document.getElementById('rDPmf').textContent  = deltaP_mf.toFixed(1);
+  document.getElementById('rEps').textContent   = eps.toFixed(4);
+  document.getElementById('rH').textContent     = h.toFixed(3);
+  document.getElementById('rAr').textContent    = Ar.toFixed(0);
+  document.getElementById('rRemf').textContent  = Remf.toFixed(4);
+  const c = CHIPS[regimen];
+  const chip = document.getElementById('chip-reg');
   chip.textContent=c.txt; chip.className=c.cls;
-  const mx=Math.max(deltaP_mf*1.5,1);
-  const mFill=document.getElementById('mano-fill');
-  mFill.style.height=Math.min(deltaP/mx*100,100)+'%';
-  mFill.style.background=COLS[regimen];
-  document.getElementById('mano-val').textContent=deltaP.toFixed(0)+' Pa';
-  document.getElementById('mano-linea').style.bottom=Math.min(deltaP_mf/mx*100,100)+'%';
+  const mx = Math.max(deltaP_mf*1.5, 1);
+  document.getElementById('mano-fill').style.height  = Math.min(deltaP/mx*100,100)+'%';
+  document.getElementById('mano-fill').style.background = COLS[regimen];
+  document.getElementById('mano-val').textContent   = deltaP.toFixed(0)+' Pa';
+  document.getElementById('mano-linea').style.bottom = Math.min(deltaP_mf/mx*100,100)+'%';
 }
 
 // ════════════════════════════════════════════════
-// ESCENA AR — reactor rotado 90° en X para marcador en pared
-// Coordenadas del reactor (en espacio local rotado):
-//   Y local = eje vertical del reactor
-//   Centro: Y=0, base: Y=-0.41, tope: Y=+0.41
+// AR UPDATE
 // ════════════════════════════════════════════════
 const lineaLecho = document.getElementById('linea-lecho');
 const f1=document.getElementById('f1');
@@ -410,96 +492,77 @@ const f2=document.getElementById('f2');
 const f3=document.getElementById('f3');
 let t=0;
 
-// Escala: H0=0.30m real → 0.30 AR (1:1). Reactor interior: 0.82 total, de -0.41 a +0.41
-// Lecho inicial (H0=0.30m) ocupa desde -0.41 hasta -0.41+0.30 = -0.11
-const Y_BASE = -0.41;  // base del lecho (distribuidora)
-const R_MAX  =  0.22;  // radio interior disponible para partículas
-
 function arUpdate(){
   if(E.pausado) return;
-  const{regimen,h,Umf,Ut,U,emf,eps0,dp}=E;
-  const col=COLS[regimen];
+  const {regimen,h,Umf,Ut,U,dp} = E;
+  const col = COLS[regimen];
 
-  // Nivel superior del lecho en coordenadas locales
-  const hAR = Math.min(h, 0.78); // máximo 0.78m → tope reactor
-  const yLecho = Y_BASE + hAR;   // posición Y de la línea de nivel
-
-  lineaLecho.setAttribute('position',`0 ${yLecho.toFixed(4)} 0`);
+  // Línea de nivel del lecho
+  const hAR    = Math.min(h, 0.74);
+  const yNivel = 0.02 + hAR;
+  lineaLecho.setAttribute('position',`0 ${yNivel.toFixed(4)} 0`);
   lineaLecho.setAttribute('color', col);
 
-  // Flechas de gas — escalan con U
-  const ef = Math.max(0.5, Math.min(U/0.08, 2.0));
+  // Flechas de gas
+  const ef = Math.max(0.5, Math.min(U/0.08, 2.2));
   [f1,f2,f3].forEach(f=>{
     f.setAttribute('scale',`${ef.toFixed(2)} ${ef.toFixed(2)} ${ef.toFixed(2)}`);
     f.setAttribute('color', regimen==='fijo'?'#3b82f6':col);
   });
 
-  // Radio de partículas proporcional a dp
-  const dp_um = dp*1e6;
-  const radP  = (0.012 + (dp_um-100)/700*0.016).toFixed(4);
-
-  // ── Comportamiento de partículas por régimen ──
-  // Y de -0.41 (base) hasta Y_BASE+hAR (nivel del lecho)
-  const yMax = Y_BASE + hAR;
+  // Radio partículas según dp
+  const radP = (0.014+(dp*1e6-100)/700*0.018).toFixed(4);
+  const yMax = 0.02+hAR;
 
   parts.forEach((p,i)=>{
     let nx=p.x0, ny=p.y, nz=p.z0;
 
     if(regimen==='fijo'){
-      // Grilla compacta e inmóvil
-      const nc=8, ci=i%nc, ri=Math.floor(i/nc);
-      nx = -0.19 + ci*(0.38/(nc-1));
-      ny = Y_BASE + 0.02 + ri*0.075;
-      ny = Math.min(ny, yMax-0.02);
-      nz = ((p.fase*7)%0.06)-0.03;
-      ny += Math.sin(t*0.8+p.fase)*0.002;
+      const ci=i%8, ri=Math.floor(i/8);
+      nx=-0.23+ci*(0.46/7);
+      ny=YB+ri*0.085; ny=Math.min(ny,yMax-0.02);
+      nz=((p.fase*7)%0.08)-0.04;
+      ny+=Math.sin(t*0.8+p.fase)*0.002;
       p.x0=nx; p.y=ny; p.z0=nz;
 
     } else if(regimen==='minima'){
       if(i<25){
-        const nc2=5, ci2=i%nc2, ri2=Math.floor(i/nc2);
-        nx = -0.16+ci2*0.08;
-        ny = Y_BASE+0.02+ri2*0.07;
-        ny = Math.min(ny, Y_BASE+hAR*0.55);
-        nz = ((p.fase*5)%0.05)-0.025;
-        ny += Math.sin(t*1.5+p.fase)*0.005;
+        const ci2=i%5, ri2=Math.floor(i/5);
+        nx=-0.18+ci2*0.09; ny=YB+ri2*0.075;
+        ny=Math.min(ny,0.02+hAR*0.52);
+        nz=((p.fase*5)%0.06)-0.03;
+        ny+=Math.sin(t*1.5+p.fase)*0.006;
       } else {
-        ny = p.y + Math.sin(t*3+p.fase)*0.012;
-        nx = p.x0 + Math.sin(t*2+p.fase)*0.008;
-        ny = Math.max(Y_BASE+0.02, Math.min(ny, yMax*0.85));
-        nx = Math.max(-R_MAX, Math.min(nx, R_MAX));
-        nz = p.z0;
+        ny=p.y+Math.sin(t*3+p.fase)*0.014;
+        nx=p.x0+Math.sin(t*2+p.fase)*0.009;
+        ny=Math.max(YB,Math.min(ny,yMax*0.88));
+        nx=Math.max(-RM,Math.min(nx,RM));
       }
       p.x0=nx; p.y=ny; p.z0=nz;
 
     } else if(regimen==='fluidizado'){
-      const ratio = Math.min((U-Umf)/Math.max(Ut-Umf,0.01), 1.0);
-      const spd = 0.004+ratio*0.012;
-      ny = p.y + spd;
-      nx = p.x0 + Math.sin(t*2+p.fase)*0.007;
-      nz = p.z0 + Math.cos(t*1.7+p.fase)*0.004;
-      nx = Math.max(-R_MAX, Math.min(nx, R_MAX));
-      if(ny > yMax-0.02){
-        ny = Y_BASE+0.02+Math.random()*0.04;
-        p.x0=(Math.random()-0.5)*R_MAX*1.7;
-        p.z0=(Math.random()-0.5)*0.05;
-      } else {
-        p.x0=nx; p.z0=nz;
-      }
+      const ratio=Math.min((U-Umf)/Math.max(Ut-Umf,0.01),1.0);
+      const spd=0.005+ratio*0.014;
+      ny=p.y+spd;
+      nx=p.x0+Math.sin(t*2+p.fase)*0.009;
+      nz=p.z0+Math.cos(t*1.7+p.fase)*0.005;
+      nx=Math.max(-RM,Math.min(nx,RM));
+      if(ny>yMax-0.02){
+        ny=YB+Math.random()*0.04;
+        p.x0=(Math.random()-0.5)*RM*1.7;
+        p.z0=(Math.random()-0.5)*0.06;
+      } else { p.x0=nx; p.z0=nz; }
       p.y=ny;
 
     } else {
-      // Arrastre
-      ny = p.y + 0.015+Math.random()*0.008;
-      nx = p.x0 + Math.sin(t*1.5+p.fase)*0.006;
-      nx = Math.max(-R_MAX, Math.min(nx, R_MAX));
-      if(ny > 0.43){
-        ny = Y_BASE+0.02+Math.random()*0.03;
-        p.x0=(Math.random()-0.5)*R_MAX*1.5;
-        p.z0=(Math.random()-0.5)*0.04;
-      } else {
-        p.x0=nx;
-      }
+      ny=p.y+0.016+Math.random()*0.008;
+      nx=p.x0+Math.sin(t*1.5+p.fase)*0.007;
+      nx=Math.max(-RM,Math.min(nx,RM));
+      if(ny>YT+0.12){
+        ny=YB+Math.random()*0.04;
+        p.x0=(Math.random()-0.5)*RM*1.5;
+        p.z0=(Math.random()-0.5)*0.05;
+      } else { p.x0=nx; }
       p.y=ny;
     }
 
@@ -507,7 +570,6 @@ function arUpdate(){
     p.el.setAttribute('color', col);
     p.el.setAttribute('radius', radP);
   });
-
   t+=0.04;
 }
 
@@ -521,37 +583,34 @@ function onSlider(){
   document.getElementById('vU').textContent  = E.U.toFixed(3)+' m/s';
   document.getElementById('vdp').textContent = (E.dp*1e6).toFixed(0)+' µm';
   if(E.eps_manual) document.getElementById('vEps').textContent = E.eps_slider.toFixed(3);
-  fisica();
-  panelUpdate();
+  fisica(); panelUpdate();
 }
 document.getElementById('sU').addEventListener('input',onSlider);
 document.getElementById('sdp').addEventListener('input',onSlider);
 document.getElementById('sEps').addEventListener('input',onSlider);
 
 // Botón modo ε
-const btnEM=document.getElementById('btn-eps-mode');
-const epsLbl=document.getElementById('eps-mode-lbl');
-btnEM.addEventListener('click',()=>{
+const btnEps=document.getElementById('btn-eps');
+const epsDesc=document.getElementById('eps-desc');
+btnEps.addEventListener('click',()=>{
   E.eps_manual=!E.eps_manual;
   if(E.eps_manual){
-    btnEM.textContent='✏️ MANUAL';
-    btnEM.style.color='#f59e0b';
-    btnEM.style.borderColor='rgba(245,158,11,0.6)';
-    epsLbl.textContent='ε fijada manualmente';
-    epsLbl.style.color='rgba(245,158,11,0.8)';
+    btnEps.textContent='✏️ MANUAL';
+    btnEps.style.color='#f59e0b';
+    btnEps.style.borderColor='rgba(245,158,11,0.6)';
+    epsDesc.textContent='ε fijada manualmente';
+    epsDesc.style.color='rgba(245,158,11,0.7)';
   } else {
-    btnEM.textContent='🔄 CALCULADO';
-    btnEM.style.color='#5eead4';
-    btnEM.style.borderColor='rgba(94,234,212,0.5)';
-    epsLbl.textContent='ε se calcula automáticamente';
-    epsLbl.style.color='rgba(255,255,255,0.45)';
+    btnEps.textContent='🔄 CALCULADO';
+    btnEps.style.color='#5eead4';
+    btnEps.style.borderColor='rgba(94,234,212,0.5)';
+    epsDesc.textContent='ε se calcula automáticamente';
+    epsDesc.style.color='rgba(255,255,255,0.4)';
   }
   fisica(); panelUpdate();
 });
 
-// ════════════════════════════════════════════════
-// PAUSA
-// ════════════════════════════════════════════════
+// Pausa
 const btnP=document.getElementById('btn-pausa');
 const badge=document.getElementById('badge-pausa');
 btnP.addEventListener('click',()=>{
@@ -561,16 +620,14 @@ btnP.addEventListener('click',()=>{
   badge.style.display=E.pausado?'block':'none';
 });
 
-// ════════════════════════════════════════════════
-// LOOP PRINCIPAL
-// ════════════════════════════════════════════════
+// Loop
 function loop(){
   if(!E.pausado){ fisica(); panelUpdate(); arUpdate(); }
   requestAnimationFrame(loop);
 }
 
 // ════════════════════════════════════════════════
-// SPLASH — CÁMARA
+// ACTIVAR CÁMARA
 // ════════════════════════════════════════════════
 document.getElementById('btn-iniciar').addEventListener('click',async()=>{
   const btn=document.getElementById('btn-iniciar');
@@ -578,8 +635,8 @@ document.getElementById('btn-iniciar').addEventListener('click',async()=>{
   btn.textContent='⏳ Solicitando acceso...';
   btn.disabled=true;
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-    stream.getTracks().forEach(t=>t.stop());
+    const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    s.getTracks().forEach(t=>t.stop());
     document.getElementById('splash').style.display='none';
     document.getElementById('panel-top').style.display='flex';
     document.getElementById('panel-bot').style.display='flex';
@@ -589,8 +646,8 @@ document.getElementById('btn-iniciar').addEventListener('click',async()=>{
   }catch(e){
     err.style.display='block';
     err.textContent=e.name==='NotAllowedError'
-      ?'⚠️ Permiso denegado. Ve a Configuración → Cámara y permite el acceso, luego recarga.'
-      :'⚠️ Error: '+e.message;
+      ?'⚠️ Permiso denegado. Ve a Configuración → Cámara, activa el permiso y recarga la página.'
+      :'⚠️ Error al acceder a la cámara: '+e.message;
     btn.textContent='📷 REINTENTAR';
     btn.disabled=false;
   }
