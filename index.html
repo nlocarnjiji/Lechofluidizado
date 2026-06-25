@@ -89,90 +89,64 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monos
 <a-scene
   arjs="sourceType: webcam; debugUIEnabled: false;"
   vr-mode-ui="enabled: false"
-  renderer="antialias: true; alpha: true;"
+  renderer="antialias: true; alpha: true; logarithmicDepthBuffer: true;"
 >
   <a-marker
     preset="hiro"
     id="marcador"
     smooth="true"
-    smoothCount="10"
+    smoothCount="8"
     smoothTolerance="0.01"
     smoothThreshold="5"
   >
     <!--
-      Marcador Hiro en PARED → cámara mira horizontalmente
-      Reactor cilíndrico vertical transparente — vista frontal
+      ESCALA REDUCIDA: reactor de 0.8 unidades de alto centrado sobre el marcador
+      El marcador Hiro mide ~1 unidad. El reactor ocupa ese espacio visualmente.
+      Eje Y del marcador apunta hacia la cámara cuando está en la pared.
     -->
-    <a-entity id="reactor-root" position="0 0.5 0">
+    <a-entity id="reactor-root" position="0 0 0" rotation="0 0 0">
 
-      <!-- Flechas de gas — distribuidores debajo de la base -->
-      <a-cone id="f1" position="-0.20 -0.28 0" radius-bottom="0.06" radius-top="0" height="0.20" color="#3b82f6" opacity="0.95"></a-cone>
-      <a-cone id="f2" position="0     -0.28 0" radius-bottom="0.06" radius-top="0" height="0.20" color="#3b82f6" opacity="0.95"></a-cone>
-      <a-cone id="f3" position="0.20  -0.28 0" radius-bottom="0.06" radius-top="0" height="0.20" color="#3b82f6" opacity="0.95"></a-cone>
+      <!-- Flechas de gas entrante — debajo de la base -->
+      <a-cone id="f1" position="-0.18 -0.12 0" radius-bottom="0.04" radius-top="0" height="0.12" color="#3b82f6" opacity="0.95" rotation="0 0 0"></a-cone>
+      <a-cone id="f2" position="0     -0.12 0" radius-bottom="0.04" radius-top="0" height="0.12" color="#3b82f6" opacity="0.95" rotation="0 0 0"></a-cone>
+      <a-cone id="f3" position="0.18  -0.12 0" radius-bottom="0.04" radius-top="0" height="0.12" color="#3b82f6" opacity="0.95" rotation="0 0 0"></a-cone>
 
       <!-- Placa distribuidora -->
-      <a-cylinder
-        position="0 0 0"
-        radius="0.48" height="0.05"
-        color="#334155" opacity="0.98">
-      </a-cylinder>
+      <a-cylinder position="0 -0.02 0" radius="0.30" height="0.03" color="#334155" opacity="0.98"></a-cylinder>
 
-      <!-- Cuerpo reactor: muy transparente para ver partículas -->
+      <!-- Cuerpo reactor — muy transparente para ver partículas -->
       <a-cylinder
         id="col-ar"
-        position="0 1.2 0"
-        radius="0.48" height="2.4"
-        color="#bfdbfe" opacity="0.03"
+        position="0 0.40 0"
+        radius="0.30" height="0.80"
+        color="#bfdbfe" opacity="0.04"
         side="double">
       </a-cylinder>
 
-      <!-- Contorno exterior: solo las paredes, muy fino -->
+      <!-- Contorno del cilindro — paredes visibles -->
       <a-cylinder
-        position="0 1.2 0"
-        radius="0.50" height="2.4"
-        color="#5eead4" opacity="0.20"
+        position="0 0.40 0"
+        radius="0.31" height="0.80"
+        color="#5eead4" opacity="0.30"
         open-ended="true"
         side="double"
-        segments-radial="32">
+        segments-radial="24">
       </a-cylinder>
 
-      <!-- Fondo trasero: muy sutil solo para dar contraste a las partículas -->
-      <a-cylinder
-        position="0 1.2 -0.02"
-        radius="0.47" height="2.38"
-        color="#0a0f1e" opacity="0.25"
-        side="back">
-      </a-cylinder>
-
-      <!-- Línea de nivel actual del lecho -->
+      <!-- Línea de nivel del lecho -->
       <a-cylinder
         id="linea-lecho"
-        position="0 0.30 0"
-        radius="0.49" height="0.018"
+        position="0 0.25 0"
+        radius="0.30" height="0.008"
         color="#f59e0b" opacity="0.95">
       </a-cylinder>
 
-      <!-- Tapa superior fija -->
+      <!-- Tapa superior -->
       <a-cylinder
-        id="tapa-ar"
-        position="0 2.43 0"
-        radius="0.50" height="0.05"
-        color="#5eead4" opacity="0.80">
+        position="0 0.81 0"
+        radius="0.31" height="0.025"
+        color="#5eead4" opacity="0.75">
       </a-cylinder>
-
-      <!-- Etiqueta FREEBOARD -->
-      <a-text
-        value="FREEBOARD"
-        position="0 2.75 0.50"
-        align="center" color="#94a3b8" width="2.0">
-      </a-text>
-
-      <!-- Etiqueta GAS ENTRADA -->
-      <a-text
-        value="GAS ENTRADA"
-        position="0 -0.55 0.50"
-        align="center" color="#3b82f6" width="2.0">
-      </a-text>
 
       <!-- Contenedor partículas -->
       <a-entity id="cpart"></a-entity>
@@ -343,19 +317,20 @@ const parts=[];
 const cpart=document.getElementById('cpart');
 
 for(let i=0;i<N;i++){
-  // Distribución inicial frontal: columnas en X, filas en Y
-  const cols=8, col_i=i%cols, row_i=Math.floor(i/cols);
-  const x0 = -0.38 + col_i*(0.76/(cols-1));
-  const y0 = 0.08 + row_i*0.16;
-  const z0 = (Math.random()-0.5)*0.12; // poca profundidad
+  // Escala reducida: reactor alto=0.80, radio=0.30
+  // Partículas en grilla dentro del reactor
+  const nc=8, ci=i%nc, ri=Math.floor(i/nc);
+  const x0 = -0.21 + ci*(0.42/(nc-1));
+  const y0 = 0.03 + ri*0.085;
+  const z0 = (Math.random()-0.5)*0.06;
   const s=document.createElement('a-sphere');
-  s.setAttribute('radius','0.06');
-  s.setAttribute('position',`${x0.toFixed(3)} ${y0.toFixed(3)} ${z0.toFixed(3)}`);
+  s.setAttribute('radius','0.015');
+  s.setAttribute('position',`${x0.toFixed(4)} ${y0.toFixed(4)} ${z0.toFixed(4)}`);
   s.setAttribute('color','#3b82f6');
-  s.setAttribute('opacity','0.95');
-  s.setAttribute('roughness','0.3');
+  s.setAttribute('opacity','0.97');
+  s.setAttribute('roughness','0.2');
   cpart.appendChild(s);
-  parts.push({el:s, x0, y:y0, z0, vy:0, fase:Math.random()*Math.PI*2});
+  parts.push({el:s, x0, y:y0, z0, fase:Math.random()*Math.PI*2});
 }
 
 const COLS={fijo:'#3b82f6',minima:'#f59e0b',fluidizado:'#22c55e',arrastre:'#ef4444'};
@@ -392,129 +367,114 @@ function panelUpdate(){
 }
 
 // ═══════════════════════════════════════════════
-// ESCENA AR
+// ESCENA AR — escala reducida para marcador en pared
+// Reactor: alto=0.80, radio=0.30, base en Y=0, tope en Y=0.80
+// Partículas confinadas en X:[-0.24,0.24], Y:[0.02,0.78], Z:[-0.05,0.05]
 // ═══════════════════════════════════════════════
 const colAR      = document.getElementById('col-ar');
 const lineaLecho = document.getElementById('linea-lecho');
-const tapaAR     = document.getElementById('tapa-ar');
 const f1=document.getElementById('f1');
 const f2=document.getElementById('f2');
 const f3=document.getElementById('f3');
 let t=0;
 
+// Escala: H0=0.30m real → 0.30 unidades AR (1:1 en esta escala)
+const EH2 = 1.0;   // 1 metro real = 1 unidad AR
+const H0_AR = 0.30; // altura inicial del lecho en unidades AR
+const RMAX = 0.24;  // radio interior disponible para partículas
+
 function arUpdate(){
   if(E.pausado) return;
   const{regimen,h,Umf,Ut,U,emf,eps0,dp}=E;
   const col=COLS[regimen];
-  const hAR    = Math.max(h*EH, 0.20);
-  const hMax   = 0.60*EH;
 
-  // Altura del cuerpo del reactor (fija — solo el lecho cambia)
-  colAR.setAttribute('height','2.40');
-  colAR.setAttribute('position','0 1.2 0');
+  // Altura del lecho en unidades AR (escalada)
+  // H0 real=0.30m → 0.30 AR. Máximo reactor=0.80 AR
+  const hAR = Math.min(Math.max(h * EH2, 0.05), 0.75);
 
-  // Línea de nivel del lecho actual
-  lineaLecho.setAttribute('position',`0 ${hAR.toFixed(3)} 0`);
+  // Línea de nivel del lecho
+  lineaLecho.setAttribute('position', `0 ${hAR.toFixed(3)} 0`);
   lineaLecho.setAttribute('color', col);
 
-  // Flechas de gas: color y escala según U
-  const ef = Math.max(0.6, Math.min(U/0.05, 3.0));
+  // Flechas de gas
+  const ef = Math.max(0.5, Math.min(U/0.08, 2.0));
   [f1,f2,f3].forEach(f=>{
     f.setAttribute('scale',`${ef.toFixed(2)} ${ef.toFixed(2)} ${ef.toFixed(2)}`);
     f.setAttribute('color', regimen==='fijo'?'#3b82f6':col);
   });
 
-  // Escala visual de partículas según dp (100µm→radio 0.03, 800µm→radio 0.10)
+  // Radio de partículas escala con dp
   const dp_um = dp * 1e6;
-  const radPart = (0.03 + (dp_um - 100) / (800 - 100) * 0.07).toFixed(3);
+  const radPart = (0.010 + (dp_um-100)/(700)*0.018).toFixed(4);
 
-  // ═══ COMPORTAMIENTO PARTÍCULAS POR RÉGIMEN ═══
-  // Vista FRONTAL: cámara mira en dirección -Z
-  // X = horizontal (ancho reactor ±0.45)
-  // Y = vertical (altura del lecho)
-  // Z = profundidad (pequeña variación para dar sensación 3D)
+  // ═══ COMPORTAMIENTO POR RÉGIMEN ═══
   parts.forEach((p,i)=>{
     let nx=p.x0, ny=p.y, nz=p.z0;
 
     if(regimen==='fijo'){
-      // LECHO FIJO: grilla compacta visible de frente
-      // Distribución en columnas (X) y filas (Y)
-      const cols=8, col_i=i%cols, row_i=Math.floor(i/cols);
-      nx = -0.38 + col_i*(0.76/(cols-1));
-      ny = 0.08 + row_i*0.16;
-      ny = Math.min(ny, hAR-0.08);
-      // Profundidad variada para dar volumen
-      nz = (p.fase%0.3)-0.15;
-      // Vibración mínima
-      ny += Math.sin(t*0.8+p.fase)*0.003;
-      nx += Math.sin(t*0.6+p.fase+1)*0.003;
+      // Grilla compacta: 8 columnas x 7 filas
+      const nc=8, ci=i%nc, ri=Math.floor(i/nc);
+      nx = -0.21 + ci*(0.42/(nc-1));
+      ny = 0.03 + ri*0.085;
+      ny = Math.min(ny, hAR-0.03);
+      nz = ((p.fase*7)%0.08)-0.04;
+      ny += Math.sin(t*0.8+p.fase)*0.002;
       p.x0=nx; p.y=ny; p.z0=nz;
 
     } else if(regimen==='minima'){
-      // FLUIDIZACIÓN MÍNIMA: mitad quietas abajo, mitad saltando
       if(i<25){
-        // Partículas sedimentadas — grilla baja
-        const c2=i%5, r2=Math.floor(i/5);
-        nx = -0.36 + c2*0.18;
-        ny = 0.08 + r2*0.15;
-        ny = Math.min(ny, hAR*0.50);
-        nz = (p.fase%0.2)-0.10;
-        ny += Math.sin(t*1.2+p.fase)*0.006;
+        const nc2=5, ci2=i%nc2, ri2=Math.floor(i/nc2);
+        nx = -0.18 + ci2*0.09;
+        ny = 0.03 + ri2*0.08;
+        ny = Math.min(ny, hAR*0.55);
+        nz = ((p.fase*5)%0.06)-0.03;
+        ny += Math.sin(t*1.5+p.fase)*0.005;
       } else {
-        // Partículas saltando — burbujeo incipiente
-        ny = p.y + Math.sin(t*3.5+p.fase)*0.030;
-        nx = p.x0 + Math.sin(t*2+p.fase)*0.015;
-        ny = Math.max(0.08, Math.min(ny, hAR*0.80));
-        // Mantener dentro del ancho
-        nx = Math.max(-0.42, Math.min(nx, 0.42));
+        ny = p.y + Math.sin(t*3+p.fase)*0.012;
+        nx = p.x0 + Math.sin(t*2+p.fase)*0.008;
+        ny = Math.max(0.02, Math.min(ny, hAR*0.85));
+        nx = Math.max(-RMAX, Math.min(nx, RMAX));
         nz = p.z0;
       }
       p.x0=nx; p.y=ny; p.z0=nz;
 
     } else if(regimen==='fluidizado'){
-      // LECHO FLUIDIZADO: movimiento ascendente con recirculación visible
       const ratio = Math.min((U-Umf)/Math.max(Ut-Umf,0.01), 1.0);
-      const spd   = 0.010 + ratio*0.040;
-      // Ascenso
+      const spd = 0.004 + ratio*0.012;
       ny = p.y + spd;
-      // Turbulencia lateral visible de frente
-      nx = p.x0 + Math.sin(t*2.2+p.fase)*0.020;
-      nz = p.z0 + Math.cos(t*1.8+p.fase)*0.010;
-      // Límites horizontales del reactor
-      nx = Math.max(-0.42, Math.min(nx, 0.42));
-      // Recirculación: cuando llegan arriba vuelven abajo
-      if(ny > hAR - 0.06){
-        ny = 0.06 + Math.random()*0.12;
-        p.x0 = (Math.random()-0.5)*0.80;
-        p.z0 = (Math.random()-0.5)*0.12;
+      nx = p.x0 + Math.sin(t*2+p.fase)*0.008;
+      nz = p.z0 + Math.cos(t*1.7+p.fase)*0.004;
+      nx = Math.max(-RMAX, Math.min(nx, RMAX));
+      if(ny > hAR - 0.02){
+        ny = 0.02 + Math.random()*0.04;
+        p.x0 = (Math.random()-0.5)*RMAX*1.8;
+        p.z0 = (Math.random()-0.5)*0.06;
       } else {
-        p.x0 = nx; p.z0 = nz;
+        p.x0=nx; p.z0=nz;
       }
-      p.y = ny;
+      p.y=ny;
 
     } else {
-      // ARRASTRE: partículas salen rápido hacia arriba (freeboard)
-      ny = p.y + 0.055 + Math.random()*0.025;
-      nx = p.x0 + Math.sin(t*1.5+p.fase)*0.018;
-      nz = p.z0;
-      nx = Math.max(-0.44, Math.min(nx, 0.44));
-      // Cuando salen del reactor vuelven a la base
-      if(ny > hMax + 0.40){
-        ny = 0.06 + Math.random()*0.08;
-        p.x0 = (Math.random()-0.5)*0.80;
-        p.z0 = (Math.random()-0.5)*0.10;
+      // Arrastre
+      ny = p.y + 0.018 + Math.random()*0.008;
+      nx = p.x0 + Math.sin(t*1.5+p.fase)*0.006;
+      nx = Math.max(-RMAX, Math.min(nx, RMAX));
+      if(ny > 0.82){
+        ny = 0.02 + Math.random()*0.03;
+        p.x0 = (Math.random()-0.5)*RMAX*1.6;
+        p.z0 = (Math.random()-0.5)*0.05;
       } else {
-        p.x0 = nx; p.z0 = nz;
+        p.x0=nx;
       }
-      p.y = ny;
+      p.y=ny;
     }
 
-    p.el.setAttribute('position',`${nx.toFixed(3)} ${ny.toFixed(3)} ${nz.toFixed(3)}`);
+    p.el.setAttribute('position',`${nx.toFixed(4)} ${ny.toFixed(4)} ${nz.toFixed(4)}`);
     p.el.setAttribute('color', col);
-    p.el.setAttribute('radius', radPart); // tamaño escala con dp
+    p.el.setAttribute('radius', radPart);
   });
 
-  t+=0.05;
+  t+=0.04;
 }
 
 // ═══════════════════════════════════════════════
@@ -613,5 +573,4 @@ document.getElementById('btn-iniciar').addEventListener('click',async()=>{
 </script>
 </body>
 </html>
-  
-      
+
