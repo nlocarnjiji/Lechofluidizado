@@ -117,31 +117,30 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monos
         color="#334155" opacity="0.98">
       </a-cylinder>
 
-      <!-- Cuerpo del reactor: cilindro transparente interior -->
+      <!-- Cuerpo reactor: muy transparente para ver partículas -->
       <a-cylinder
         id="col-ar"
         position="0 1.2 0"
         radius="0.48" height="2.4"
-        color="#bfdbfe" opacity="0.06"
+        color="#bfdbfe" opacity="0.03"
         side="double">
       </a-cylinder>
 
-      <!-- Paredes del cilindro — solo el contorno exterior visible -->
-      <!-- Mitad frontal izquierda -->
+      <!-- Contorno exterior: solo las paredes, muy fino -->
       <a-cylinder
         position="0 1.2 0"
         radius="0.50" height="2.4"
-        color="#5eead4" opacity="0.55"
+        color="#5eead4" opacity="0.20"
         open-ended="true"
         side="double"
         segments-radial="32">
       </a-cylinder>
 
-      <!-- Fondo trasero semitransparente para contrastar partículas -->
+      <!-- Fondo trasero: muy sutil solo para dar contraste a las partículas -->
       <a-cylinder
-        position="0 1.2 -0.01"
+        position="0 1.2 -0.02"
         radius="0.47" height="2.38"
-        color="#0f172a" opacity="0.40"
+        color="#0a0f1e" opacity="0.25"
         side="back">
       </a-cylinder>
 
@@ -185,7 +184,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monos
 
 <div id="panel-bot">
   <div class="srow">
-    <span class="slbl">U — vel. gas (m/s)</span>
+    <span class="slbl">U — vel. fluido (m/s)</span>
     <input type="range" id="sU"  min="0" max="0.60" step="0.005" value="0.05"/>
     <span class="sval" id="vU">0.050 m/s</span>
   </div>
@@ -195,9 +194,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monos
     <span class="sval" id="vdp">500 µm</span>
   </div>
   <div class="srow">
-    <span class="slbl">H₀ — alt. inicial (m)</span>
-    <input type="range" id="sH0" min="0.10" max="0.60" step="0.01" value="0.30"/>
-    <span class="sval" id="vH0">0.30 m</span>
+    <span class="slbl">ε — porosidad lecho</span>
+    <input type="range" id="sEps" min="0.35" max="0.95" step="0.01" value="0.42"/>
+    <span class="sval" id="vEps">0.420</span>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;padding:0 4px;">
+    <span style="font-size:11px;color:rgba(94,234,212,0.7);">Modo ε:</span>
+    <button id="btn-eps-mode" style="padding:4px 12px;border:1.5px solid rgba(94,234,212,0.5);background:transparent;color:#5eead4;font-family:'Courier New',monospace;font-size:11px;border-radius:6px;cursor:pointer;">🔄 CALCULADO</button>
+    <span id="eps-mode-lbl" style="font-size:10px;color:rgba(255,255,255,0.5);">ε se calcula automáticamente</span>
   </div>
   <button id="btn-pausa">⏸ PAUSA</button>
 </div>
@@ -213,6 +217,8 @@ const EH=4.0;
 
 const E={
   pausado:false,U:0.05,dp:500e-6,H0:0.30,
+  eps_manual:false,    // modo: false=calculado, true=manual
+  eps_slider:0.42,     // valor del slider de ε
   Ar:0,emf:0,eps0:0,Remf:0,Umf:0,
   Ret:0,n_rz:0,Ut:0,
   regimen:'fijo',deltaP:0,deltaP_mf:0,eps:0,h:0,
@@ -291,23 +297,40 @@ function fisica(){
   else               reg='arrastre';
   const dPmf=H0*(1-eps0)*(rho_p-rho_f)*g;
   let dP,eps,h,n_rz=0;
-  if(reg==='fijo'){
+
+  if(E.eps_manual){
+    // MODO MANUAL: ε fijado por el slider — usuario controla porosidad directamente
+    // Útil para demostrar efecto de ε sobre ΔP y h independientemente de U
+    eps = E.eps_slider;
+    eps = Math.max(eps, emf); // no puede ser menor que emf
+    h   = H0*(1-eps0)/(1-eps);
+    // ΔP con Ergun usando ε manual
     const Uc=Math.max(U,1e-6);
-    dP=H0*(150*mu*Uc*Math.pow(1-eps0,2)/(phi_s*phi_s*dp*dp*Math.pow(eps0,3))+1.75*rho_f*Uc*Uc*(1-eps0)/(phi_s*dp*Math.pow(eps0,3)));
-    eps=eps0;h=H0;
-  } else if(reg==='minima'){
-    dP=dPmf;eps=emf;h=H0*(1-eps0)/(1-emf);
-  } else if(reg==='fluidizado'){
-    dP=dPmf;
-    if(Ret<0.2)     n_rz=4.65;
-    else if(Ret<1)  n_rz=4.35*Math.pow(Ret,-0.03);
-    else if(Ret<500)n_rz=4.45*Math.pow(Ret,-0.1);
-    else            n_rz=2.39;
-    eps=Math.pow(Math.min(U/Ut,0.9995),1/n_rz);
-    eps=Math.max(eps,emf);
-    h=H0*(1-eps0)/(1-eps);
+    dP = h*(150*mu*Uc*Math.pow(1-eps,2)/(phi_s*phi_s*dp*dp*Math.pow(eps,3))
+           +1.75*rho_f*Uc*Uc*(1-eps)/(phi_s*dp*Math.pow(eps,3)));
   } else {
-    dP=dPmf*0.55;eps=0.96;h=H0*(1-eps0)/(1-eps);
+    // MODO CALCULADO: ε se determina por el régimen y Richardson-Zaki
+    if(reg==='fijo'){
+      const Uc=Math.max(U,1e-6);
+      dP=H0*(150*mu*Uc*Math.pow(1-eps0,2)/(phi_s*phi_s*dp*dp*Math.pow(eps0,3))+1.75*rho_f*Uc*Uc*(1-eps0)/(phi_s*dp*Math.pow(eps0,3)));
+      eps=eps0;h=H0;
+    } else if(reg==='minima'){
+      dP=dPmf;eps=emf;h=H0*(1-eps0)/(1-emf);
+    } else if(reg==='fluidizado'){
+      dP=dPmf;
+      if(Ret<0.2)     n_rz=4.65;
+      else if(Ret<1)  n_rz=4.35*Math.pow(Ret,-0.03);
+      else if(Ret<500)n_rz=4.45*Math.pow(Ret,-0.1);
+      else            n_rz=2.39;
+      eps=Math.pow(Math.min(U/Ut,0.9995),1/n_rz);
+      eps=Math.max(eps,emf);
+      h=H0*(1-eps0)/(1-eps);
+    } else {
+      dP=dPmf*0.55;eps=0.96;h=H0*(1-eps0)/(1-eps);
+    }
+    // Sincronizar slider de ε con el valor calculado
+    document.getElementById('sEps').value = eps.toFixed(2);
+    document.getElementById('vEps').textContent = eps.toFixed(3);
   }
   Object.assign(E,{Ar,emf,eps0,Remf,Umf,Ret,n_rz,Ut,regimen:reg,deltaP:dP,deltaP_mf:dPmf,eps,h});
 }
@@ -498,18 +521,44 @@ function arUpdate(){
 // SLIDERS
 // ═══════════════════════════════════════════════
 function onSlider(){
-  E.U =parseFloat(document.getElementById('sU').value);
-  E.dp=parseFloat(document.getElementById('sdp').value)*1e-6;
-  E.H0=parseFloat(document.getElementById('sH0').value);
-  document.getElementById('vU').textContent =E.U.toFixed(3)+' m/s';
-  document.getElementById('vdp').textContent=(E.dp*1e6).toFixed(0)+' µm';
-  document.getElementById('vH0').textContent=E.H0.toFixed(2)+' m';
+  E.U  = parseFloat(document.getElementById('sU').value);
+  E.dp = parseFloat(document.getElementById('sdp').value)*1e-6;
+  E.eps_slider = parseFloat(document.getElementById('sEps').value);
+  document.getElementById('vU').textContent  = E.U.toFixed(3)+' m/s';
+  document.getElementById('vdp').textContent = (E.dp*1e6).toFixed(0)+' µm';
+  if(E.eps_manual){
+    document.getElementById('vEps').textContent = E.eps_slider.toFixed(3);
+  }
   fisica();
   panelUpdate();
 }
 document.getElementById('sU').addEventListener('input',onSlider);
 document.getElementById('sdp').addEventListener('input',onSlider);
-document.getElementById('sH0').addEventListener('input',onSlider);
+document.getElementById('sEps').addEventListener('input',onSlider);
+
+// Botón modo ε: alternar entre calculado y manual
+const btnEpsMode = document.getElementById('btn-eps-mode');
+const epsModeLbl = document.getElementById('eps-mode-lbl');
+btnEpsMode.addEventListener('click',()=>{
+  E.eps_manual = !E.eps_manual;
+  if(E.eps_manual){
+    btnEpsMode.textContent = '✏️ MANUAL';
+    btnEpsMode.style.color = '#f59e0b';
+    btnEpsMode.style.borderColor = 'rgba(245,158,11,0.6)';
+    epsModeLbl.textContent = 'ε fijada manualmente con el slider';
+    epsModeLbl.style.color = 'rgba(245,158,11,0.8)';
+    document.getElementById('sEps').style.accentColor = '#f59e0b';
+  } else {
+    btnEpsMode.textContent = '🔄 CALCULADO';
+    btnEpsMode.style.color = '#5eead4';
+    btnEpsMode.style.borderColor = 'rgba(94,234,212,0.5)';
+    epsModeLbl.textContent = 'ε se calcula automáticamente';
+    epsModeLbl.style.color = 'rgba(255,255,255,0.5)';
+    document.getElementById('sEps').style.accentColor = '#5eead4';
+  }
+  fisica();
+  panelUpdate();
+});
 
 // ═══════════════════════════════════════════════
 // PAUSA — congela animación, sliders activos
@@ -564,3 +613,5 @@ document.getElementById('btn-iniciar').addEventListener('click',async()=>{
 </script>
 </body>
 </html>
+  
+      
