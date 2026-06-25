@@ -101,80 +101,79 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monos
   >
     <!--
       Marcador Hiro en PARED → cámara mira horizontalmente
-      El reactor queda vertical de frente sin rotación adicional
-      Posición: ligeramente alejado del marcador hacia la cámara
+      Reactor cilíndrico vertical transparente — vista frontal
     -->
-    <a-entity id="reactor-root" position="0 0.8 0">
+    <a-entity id="reactor-root" position="0 0.5 0">
 
-      <!-- Placa distribuidora — base del reactor -->
+      <!-- Flechas de gas — distribuidores debajo de la base -->
+      <a-cone id="f1" position="-0.20 -0.28 0" radius-bottom="0.06" radius-top="0" height="0.20" color="#3b82f6" opacity="0.95"></a-cone>
+      <a-cone id="f2" position="0     -0.28 0" radius-bottom="0.06" radius-top="0" height="0.20" color="#3b82f6" opacity="0.95"></a-cone>
+      <a-cone id="f3" position="0.20  -0.28 0" radius-bottom="0.06" radius-top="0" height="0.20" color="#3b82f6" opacity="0.95"></a-cone>
+
+      <!-- Placa distribuidora -->
       <a-cylinder
-        id="base-ar"
         position="0 0 0"
-        radius="0.50" height="0.06"
+        radius="0.48" height="0.05"
         color="#334155" opacity="0.98">
       </a-cylinder>
 
-      <!-- Etiqueta distribuidora -->
-      <a-text
-        value="▲ GAS ENTRADA"
-        position="0 -0.15 0"
-        align="center"
-        color="#3b82f6"
-        width="2.5"
-        font="monoid">
-      </a-text>
-
-      <!-- Cuerpo reactor: DOS paredes laterales visibles (no cilindro) -->
-      <!-- Pared izquierda -->
-      <a-box
-        position="-0.52 1.2 0"
-        width="0.06" height="2.4" depth="0.06"
-        color="#5eead4" opacity="0.85">
-      </a-box>
-      <!-- Pared derecha -->
-      <a-box
-        position="0.52 1.2 0"
-        width="0.06" height="2.4" depth="0.06"
-        color="#5eead4" opacity="0.85">
-      </a-box>
-      <!-- Fondo del reactor (pared trasera, muy transparente) -->
-      <a-plane
-        id="fondo-ar"
-        position="0 1.2 -0.02"
-        width="1.04" height="2.4"
-        color="#0f172a" opacity="0.35"
+      <!-- Cuerpo del reactor: cilindro transparente interior -->
+      <a-cylinder
+        id="col-ar"
+        position="0 1.2 0"
+        radius="0.48" height="2.4"
+        color="#bfdbfe" opacity="0.06"
         side="double">
-      </a-plane>
+      </a-cylinder>
 
-      <!-- Línea de nivel del lecho (referencia visual) -->
-      <a-box
+      <!-- Paredes del cilindro — solo el contorno exterior visible -->
+      <!-- Mitad frontal izquierda -->
+      <a-cylinder
+        position="0 1.2 0"
+        radius="0.50" height="2.4"
+        color="#5eead4" opacity="0.55"
+        open-ended="true"
+        side="double"
+        segments-radial="32">
+      </a-cylinder>
+
+      <!-- Fondo trasero semitransparente para contrastar partículas -->
+      <a-cylinder
+        position="0 1.2 -0.01"
+        radius="0.47" height="2.38"
+        color="#0f172a" opacity="0.40"
+        side="back">
+      </a-cylinder>
+
+      <!-- Línea de nivel actual del lecho -->
+      <a-cylinder
         id="linea-lecho"
         position="0 0.30 0"
-        width="1.04" height="0.015" depth="0.04"
-        color="#f59e0b" opacity="0.9">
-      </a-box>
+        radius="0.49" height="0.018"
+        color="#f59e0b" opacity="0.95">
+      </a-cylinder>
 
-      <!-- Tapa superior (freeboard) -->
-      <a-box
+      <!-- Tapa superior fija -->
+      <a-cylinder
         id="tapa-ar"
         position="0 2.43 0"
-        width="1.10" height="0.06" depth="0.08"
-        color="#5eead4" opacity="0.7">
-      </a-box>
+        radius="0.50" height="0.05"
+        color="#5eead4" opacity="0.80">
+      </a-cylinder>
 
-      <!-- Etiqueta freeboard -->
+      <!-- Etiqueta FREEBOARD -->
       <a-text
         value="FREEBOARD"
-        position="0 2.70 0"
-        align="center"
-        color="#94a3b8"
-        width="2.2">
+        position="0 2.75 0.50"
+        align="center" color="#94a3b8" width="2.0">
       </a-text>
 
-      <!-- Flechas de gas entrante — debajo de la base -->
-      <a-cone id="f1" position="-0.22 -0.22 0" radius-bottom="0.07" radius-top="0" height="0.22" color="#3b82f6" opacity="0.95"></a-cone>
-      <a-cone id="f2" position="0     -0.22 0" radius-bottom="0.07" radius-top="0" height="0.22" color="#3b82f6" opacity="0.95"></a-cone>
-      <a-cone id="f3" position="0.22  -0.22 0" radius-bottom="0.07" radius-top="0" height="0.22" color="#3b82f6" opacity="0.95"></a-cone>
+      <!-- Etiqueta GAS ENTRADA -->
+      <a-text
+        value="GAS ENTRADA"
+        position="0 -0.55 0.50"
+        align="center" color="#3b82f6" width="2.0">
+      </a-text>
 
       <!-- Contenedor partículas -->
       <a-entity id="cpart"></a-entity>
@@ -370,11 +369,11 @@ function panelUpdate(){
 }
 
 // ═══════════════════════════════════════════════
-// ESCENA AR — reactor frontal para marcador en pared
+// ESCENA AR
 // ═══════════════════════════════════════════════
-const fondoAR   = document.getElementById('fondo-ar');
-const lineaLecho= document.getElementById('linea-lecho');
-const tapaAR    = document.getElementById('tapa-ar');
+const colAR      = document.getElementById('col-ar');
+const lineaLecho = document.getElementById('linea-lecho');
+const tapaAR     = document.getElementById('tapa-ar');
 const f1=document.getElementById('f1');
 const f2=document.getElementById('f2');
 const f3=document.getElementById('f3');
@@ -382,29 +381,29 @@ let t=0;
 
 function arUpdate(){
   if(E.pausado) return;
-  const{regimen,h,Umf,Ut,U,emf,eps0}=E;
+  const{regimen,h,Umf,Ut,U,emf,eps0,dp}=E;
   const col=COLS[regimen];
-  // Escala AR: 1m real = EH unidades A-Frame
-  const hAR = Math.max(h*EH, 0.20);
-  const hMax= 0.60*EH; // altura máxima del reactor (H0_max=0.60m)
+  const hAR    = Math.max(h*EH, 0.20);
+  const hMax   = 0.60*EH;
 
-  // Fondo del reactor se ajusta a la altura máxima fija
-  fondoAR.setAttribute('height', hMax.toFixed(3));
-  fondoAR.setAttribute('position', `0 ${(hMax/2).toFixed(3)} -0.02`);
+  // Altura del cuerpo del reactor (fija — solo el lecho cambia)
+  colAR.setAttribute('height','2.40');
+  colAR.setAttribute('position','0 1.2 0');
 
   // Línea de nivel del lecho actual
-  lineaLecho.setAttribute('position', `0 ${hAR.toFixed(3)} 0`);
+  lineaLecho.setAttribute('position',`0 ${hAR.toFixed(3)} 0`);
   lineaLecho.setAttribute('color', col);
 
-  // Tapa superior fija
-  tapaAR.setAttribute('position', `0 ${(hMax+0.06).toFixed(3)} 0`);
-
-  // Flechas de gas: color según régimen, escala según U
-  const ef=Math.max(0.6, Math.min(U/0.05, 3.0));
+  // Flechas de gas: color y escala según U
+  const ef = Math.max(0.6, Math.min(U/0.05, 3.0));
   [f1,f2,f3].forEach(f=>{
     f.setAttribute('scale',`${ef.toFixed(2)} ${ef.toFixed(2)} ${ef.toFixed(2)}`);
     f.setAttribute('color', regimen==='fijo'?'#3b82f6':col);
   });
+
+  // Escala visual de partículas según dp (100µm→radio 0.03, 800µm→radio 0.10)
+  const dp_um = dp * 1e6;
+  const radPart = (0.03 + (dp_um - 100) / (800 - 100) * 0.07).toFixed(3);
 
   // ═══ COMPORTAMIENTO PARTÍCULAS POR RÉGIMEN ═══
   // Vista FRONTAL: cámara mira en dirección -Z
@@ -489,6 +488,7 @@ function arUpdate(){
 
     p.el.setAttribute('position',`${nx.toFixed(3)} ${ny.toFixed(3)} ${nz.toFixed(3)}`);
     p.el.setAttribute('color', col);
+    p.el.setAttribute('radius', radPart); // tamaño escala con dp
   });
 
   t+=0.05;
