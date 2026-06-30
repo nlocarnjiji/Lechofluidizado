@@ -83,6 +83,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monos
   transition:all 0.2s;margin-top:4px;
 }
 #btn-iniciar:active{background:rgba(94,234,212,0.18);}
+#btn-orient{
+  position:fixed; top:12px; right:12px; z-index:50;
+  padding:9px 14px; border:2px solid #f59e0b;
+  background:rgba(0,0,0,0.55); color:#f59e0b;
+  font-family:'Courier New',monospace; font-size:12px;
+  font-weight:bold; border-radius:10px; cursor:pointer;
+}
+#btn-orient:active{background:rgba(245,158,11,0.2);}
 #splash-error{
   color:#ef4444;font-size:12px;display:none;
   max-width:360px;line-height:1.6;text-align:center;
@@ -235,6 +243,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monos
   </div>
 
   <button id="btn-iniciar">📷 ACTIVAR CÁMARA</button>
+  <button id="btn-orient" style="display:none;">🔁 Mesa / Pared</button>
   <div id="splash-error"></div>
 </div>
 
@@ -280,11 +289,11 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monos
   renderer="antialias: true; alpha: true;"
 >
   <a-marker preset="hiro" id="marcador" smooth="true" smoothCount="14" smoothTolerance="0.02" smoothThreshold="9">
-    <!-- root2: corrige orientación — el eje Y local del marcador es su NORMAL
-         (apunta hacia la cámara cuando el marcador está pegado en una PARED VERTICAL).
-         Rotamos -90° en X para que la altura del reactor coincida con la vertical
-         real del mundo en vez de quedar acostado hacia el espectador. -->
-    <a-entity id="root2" rotation="-90 0 0">
+    <!-- root2: controla orientación del reactor según cómo tengas pegado el marcador.
+         AR.js asume por defecto que el marcador está PLANO sobre una mesa (Y local = arriba real).
+         Si el marcador está en una PARED, hay que rotar -90° en X. El botón "🔁 Orientación"
+         alterna entre los dos modos en vivo. -->
+    <a-entity id="root2" rotation="0 0 0">
       <a-entity id="root" position="0 0 0">
 
         <!-- Base / placa distribuidora -->
@@ -524,7 +533,7 @@ function arUpdate(){
   });
 
   // Radio partículas según dp
-  const radP = (0.014+(dp*1e6-100)/700*0.018).toFixed(4);
+  const radP = (0.018+(dp*1e6-100)/700*0.020).toFixed(4);
   const yMax = 0.02+hAR;
 
   parts.forEach((p,i)=>{
@@ -532,8 +541,10 @@ function arUpdate(){
 
     if(regimen==='fijo'){
       const ci=i%8, ri=Math.floor(i/8);
+      const filas = Math.ceil(N/8); // 7 filas para N=50
+      const rowH  = Math.max(0.012, (hAR-0.04)/Math.max(filas-1,1));
       nx=-0.23+ci*(0.46/7);
-      ny=YB+ri*0.085; ny=Math.min(ny,yMax-0.02);
+      ny=YB+ri*rowH; ny=Math.min(ny,yMax-0.015);
       nz=((p.fase*7)%0.08)-0.04;
       ny+=Math.sin(t*0.8+p.fase)*0.002;
       p.x0=nx; p.y=ny; p.z0=nz;
@@ -541,8 +552,9 @@ function arUpdate(){
     } else if(regimen==='minima'){
       if(i<25){
         const ci2=i%5, ri2=Math.floor(i/5);
-        nx=-0.18+ci2*0.09; ny=YB+ri2*0.075;
-        ny=Math.min(ny,0.02+hAR*0.52);
+        const rowH2 = Math.max(0.015,(hAR*0.55)/4);
+        nx=-0.18+ci2*0.09; ny=YB+ri2*rowH2;
+        ny=Math.min(ny,0.02+hAR*0.55);
         nz=((p.fase*5)%0.06)-0.03;
         ny+=Math.sin(t*1.5+p.fase)*0.006;
       } else {
@@ -643,6 +655,20 @@ function loop(){
 }
 
 // ════════════════════════════════════════════════
+// ORIENTACIÓN — alterna entre marcador en MESA (plano)
+// y marcador en PARED (vertical), según donde lo tengas pegado
+// ════════════════════════════════════════════════
+let modoPared = false;
+document.getElementById('btn-orient').addEventListener('click',()=>{
+  modoPared = !modoPared;
+  const root2 = document.getElementById('root2');
+  root2.setAttribute('rotation', modoPared ? '-90 0 0' : '0 0 0');
+  document.getElementById('btn-orient').textContent = modoPared
+    ? '🔁 Modo: PARED (clic = mesa)'
+    : '🔁 Modo: MESA (clic = pared)';
+});
+
+// ════════════════════════════════════════════════
 // ACTIVAR CÁMARA
 // ════════════════════════════════════════════════
 document.getElementById('btn-iniciar').addEventListener('click',async()=>{
@@ -657,6 +683,7 @@ document.getElementById('btn-iniciar').addEventListener('click',async()=>{
     document.getElementById('panel-top').style.display='flex';
     document.getElementById('panel-bot').style.display='flex';
     document.getElementById('mano-wrap').style.display='flex';
+    document.getElementById('btn-orient').style.display='block';
     onSlider();
     loop();
   }catch(e){
