@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Simulador Lecho Fluidizado AR</title>
+<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Courier New',monospace;background:#060a14;}
+
+/* ═══ SPLASH ═══ */
+#splash{
+  position:fixed;inset:0;z-index:99999;
+  background:linear-gradient(160deg,#060a14 0%,#0d1a2e 50%,#060a14 100%);
+  display:flex;flex-direction:column;align-items:center;
+  overflow-y:auto;padding:28px 18px 36px;gap:14px;
+}
+.sp-logo{font-size:56px;text-align:center;}
+.sp-titulo{
+  color:#5eead4;font-size:22px;font-weight:bold;
+  letter-spacing:3px;text-align:center;
+}
+.sp-sub{
+  color:rgba(94,234,212,0.55);font-size:11px;
+  letter-spacing:2.5px;text-align:center;margin-bottom:4px;
+}
+.sp-divider{
+  width:60px;height:2px;
+  background:linear-gradient(90deg,transparent,#5eead4,transparent);
+  margin:2px auto;
+}
+.sp-card{
+  background:rgba(94,234,212,0.05);
+  border:1px solid rgba(94,234,212,0.18);
+  border-radius:14px;padding:14px 16px;
+  width:100%;max-width:380px;
+}
+.sp-card-tit{
+  color:#5eead4;font-size:10px;font-weight:bold;
+  letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:9px;display:flex;align-items:center;gap:6px;
+}
+.sp-card p{color:rgba(255,255,255,0.68);font-size:12px;line-height:1.75;}
+.sp-card strong{color:#f59e0b;}
+.sp-regs{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sp-reg{
+  border-radius:10px;padding:9px 10px;
+  font-size:10px;font-weight:bold;letter-spacing:0.8px;line-height:1;
+}
+.sp-reg span{display:block;font-size:9px;font-weight:normal;opacity:0.72;margin-top:4px;letter-spacing:0;}
+.reg-fijo    {background:rgba(59,130,246,0.12);color:#93c5fd;border:1px solid rgba(59,130,246,0.35);}
+.reg-min     {background:rgba(245,158,11,0.12);color:#fde68a;border:1px solid rgba(245,158,11,0.35);}
+.reg-flu     {background:rgba(34,197,94,0.12);color:#86efac;border:1px solid rgba(34,197,94,0.35);}
+.reg-arr     {background:rgba(239,68,68,0.12);color:#fca5a5;border:1px solid rgba(239,68,68,0.35);}
+.sp-vars{display:flex;flex-direction:column;gap:8px;}
+.sp-var{
+  display:flex;align-items:center;gap:10px;
+  color:rgba(255,255,255,0.68);font-size:12px;
+  background:rgba(255,255,255,0.03);
+  border-radius:8px;padding:7px 10px;
+  border:1px solid rgba(255,255,255,0.07);
+}
+.sp-var b{color:#a78bfa;min-width:28px;font-size:13px;}
+.sp-steps{display:flex;flex-direction:column;gap:7px;}
+.sp-step{
+  display:flex;align-items:flex-start;gap:10px;
+  color:rgba(255,255,255,0.65);font-size:12px;
+}
+.sp-step-n{
+  background:rgba(94,234,212,0.15);color:#5eead4;
+  border-radius:50%;width:22px;height:22px;min-width:22px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:bold;
+}
+#btn-iniciar{
+  padding:15px 0;border:2px solid #5eead4;
+  background:rgba(94,234,212,0.06);color:#5eead4;
+  font-family:'Courier New',monospace;font-size:14px;
+  font-weight:bold;letter-spacing:2px;border-radius:12px;
+  cursor:pointer;width:100%;max-width:380px;
+  transition:all 0.2s;margin-top:4px;
+}
+#btn-iniciar:active{background:rgba(94,234,212,0.18);}
+#splash-error{
+  color:#ef4444;font-size:12px;display:none;
+  max-width:360px;line-height:1.6;text-align:center;
+}
+
+/* ═══ PANEL SUPERIOR ═══ */
+#panel-top{
+  position:fixed;top:0;left:0;width:100%;
+  background:rgba(6,10,20,0.95);
+  border-bottom:2px solid rgba(94,234,212,0.2);
+  padding:8px 12px 10px;z-index:9999;
+  display:none;flex-direction:column;gap:7px;
+}
+#chip-reg{
+  display:inline-flex;align-items:center;
+  padding:5px 16px;border-radius:24px;
+  font-size:12px;font-weight:bold;letter-spacing:1.5px;
+  width:fit-content;transition:all 0.4s;
+}
+.r-fijo      {background:rgba(59,130,246,0.18);color:#93c5fd;border:1.5px solid #3b82f6;}
+.r-minima    {background:rgba(245,158,11,0.18);color:#fde68a;border:1.5px solid #f59e0b;}
+.r-fluidizado{background:rgba(34,197,94,0.18);color:#86efac;border:1.5px solid #22c55e;}
+.r-arrastre  {background:rgba(239,68,68,0.18);color:#fca5a5;border:1.5px solid #ef4444;}
+#grid-res{display:grid;grid-template-columns:repeat(3,1fr);gap:5px 10px;}
+.ri{display:flex;flex-direction:column;gap:1px;}
+.rl{color:rgba(94,234,212,0.55);font-size:9px;letter-spacing:0.5px;text-transform:uppercase;}
+.rv{color:#f1f5f9;font-size:13px;font-weight:bold;}
+
+/* ═══ MANÓMETRO ═══ */
+#mano-wrap{
+  position:fixed;right:8px;top:50%;transform:translateY(-50%);
+  z-index:9999;display:none;flex-direction:column;
+  align-items:center;gap:3px;
+}
+.ml{color:rgba(94,234,212,0.75);font-size:9px;letter-spacing:0.8px;}
+#mano-val{color:#fff;font-size:10px;font-weight:bold;text-align:center;min-width:44px;}
+#mano-track{
+  width:22px;height:155px;
+  background:rgba(255,255,255,0.05);
+  border:1.5px solid rgba(94,234,212,0.22);
+  border-radius:11px;position:relative;overflow:hidden;
+}
+#mano-fill{position:absolute;bottom:0;left:0;width:100%;height:0%;border-radius:11px;transition:height 0.3s,background 0.4s;}
+#mano-linea{position:absolute;left:-4px;width:calc(100% + 8px);height:2px;background:rgba(245,158,11,0.9);z-index:2;}
+#mano-tag{color:rgba(245,158,11,0.8);font-size:9px;}
+
+/* ═══ BADGE PAUSA ═══ */
+#badge-pausa{
+  display:none;position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(6,10,20,0.92);
+  border:1.5px solid rgba(94,234,212,0.5);
+  color:#5eead4;font-size:13px;letter-spacing:2px;
+  padding:8px 22px;border-radius:24px;
+  z-index:9999;pointer-events:none;
+}
+
+/* ═══ PANEL INFERIOR ═══ */
+#panel-bot{
+  position:fixed;bottom:0;left:0;width:calc(100% - 46px);
+  background:rgba(6,10,20,0.95);
+  border-top:2px solid rgba(94,234,212,0.2);
+  padding:11px 13px 15px;z-index:9999;
+  display:none;flex-direction:column;gap:11px;
+}
+.srow{display:flex;align-items:center;gap:8px;}
+.slbl{color:rgba(94,234,212,0.82);font-size:10px;min-width:110px;line-height:1.3;}
+.srow input[type=range]{flex:1;height:5px;cursor:pointer;border-radius:3px;outline:none;-webkit-appearance:none;}
+#sU  {accent-color:#22c55e;}
+#sdp {accent-color:#5eead4;}
+#sEps{accent-color:#a78bfa;}
+#sH0 {accent-color:#f59e0b;}
+.sv{font-size:12px;font-weight:bold;min-width:56px;text-align:right;}
+#vU  {color:#22c55e;}
+#vdp {color:#5eead4;}
+#vEps{color:#a78bfa;}
+.eps-row{display:flex;gap:7px;align-items:center;padding:0 2px;}
+.eps-lbl{font-size:10px;color:rgba(94,234,212,0.65);}
+#btn-eps{
+  padding:4px 11px;
+  border:1.5px solid rgba(94,234,212,0.5);
+  background:transparent;color:#5eead4;
+  font-family:'Courier New',monospace;font-size:10px;
+  border-radius:6px;cursor:pointer;
+}
+#eps-desc{font-size:9px;color:rgba(255,255,255,0.4);}
+#btn-pausa{
+  align-self:center;padding:9px 36px;
+  border:2px solid #5eead4;background:transparent;color:#5eead4;
+  font-family:'Courier New',monospace;font-size:13px;
+  font-weight:bold;letter-spacing:2px;border-radius:8px;
+  cursor:pointer;transition:all 0.2s;
+}
+#btn-pausa.pausado{background:#5eead4;color:#060a14;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     SPLASH INTRODUCTORIO
+════════════════════════════════════ -->
+<div id="splash">
+  <div class="sp-logo">⚗️</div>
+  <div class="sp-titulo">LECHO FLUIDIZADO</div>
+  <div class="sp-sub">SIMULADOR DE REALIDAD AUMENTADA</div>
+  <div class="sp-divider"></div>
+
+  <div class="sp-card">
+    <div class="sp-card-tit">🔬 ¿Qué es un lecho fluidizado?</div>
+    <p>Sistema en el que partículas sólidas son <strong>suspendidas</strong> por un fluido en movimiento ascendente. Al superar la <strong>velocidad mínima de fluidización (Umf)</strong>, las partículas se separan y el lecho se comporta como un fluido, logrando excelente transferencia de calor y masa. Aplicado en refinación de petróleo, combustión de carbón y síntesis de catalizadores.</p>
+  </div>
+
+  <div class="sp-card">
+    <div class="sp-card-tit">📊 Regímenes de operación</div>
+    <div class="sp-regs">
+      <div class="sp-reg reg-fijo">🔵 LECHO FIJO<span>U &lt; Umf · Partículas inmóviles · ΔP sube con U</span></div>
+      <div class="sp-reg reg-min">🟡 FLUIDIZ. MÍNIMA<span>U ≈ Umf · Burbujeo incipiente · ΔP = ΔPmf</span></div>
+      <div class="sp-reg reg-flu">🟢 LECHO FLUIDIZADO<span>U &gt; Umf · Suspensión estable · Lecho se expande</span></div>
+      <div class="sp-reg reg-arr">🔴 ARRASTRE<span>U &gt; Ut · Partículas salen · Transporte neumático</span></div>
+    </div>
+  </div>
+
+  <div class="sp-card">
+    <div class="sp-card-tit">⚙️ Sistema simulado</div>
+    <p>
+      <strong>Sólido:</strong> Arena de sílice SiO₂ · ρp = 2650 kg/m³ · φs = 0.86 · Geldart B<br>
+      <strong>Fluido:</strong> Aire a 25°C · ρf = 1.184 kg/m³ · μ = 1.849×10⁻⁵ Pa·s<br>
+      <strong>Modelos:</strong> Kunii &amp; Levenspiel (1991) · Richardson &amp; Zaki (1954) · McCabe et al. (2005)
+    </p>
+  </div>
+
+  <div class="sp-card">
+    <div class="sp-card-tit">🎚️ Variables interactivas</div>
+    <div class="sp-vars">
+      <div class="sp-var"><b>U</b> Velocidad superficial del fluido (m/s) — controla el régimen</div>
+      <div class="sp-var"><b>dp</b> Diámetro de partícula (µm) — afecta Umf y Ut</div>
+      <div class="sp-var"><b>ε</b> Porosidad del lecho — calculada o fijada manualmente</div>
+      <div class="sp-var"><b>H0</b> Altura inicial del lecho (m) — define la altura de partida antes de la fluidización</div>
+    </div>
+  </div>
+
+  <div class="sp-card" style="border-color:rgba(94,234,212,0.35);">
+    <div class="sp-card-tit">📱 Cómo usar el simulador</div>
+    <div class="sp-steps">
+      <div class="sp-step"><div class="sp-step-n">1</div><span>Imprime o muestra el <strong style="color:#5eead4">marcador Hiro</strong> en una pared o superficie vertical</span></div>
+      <div class="sp-step"><div class="sp-step-n">2</div><span>Presiona <strong style="color:#5eead4">Activar Cámara</strong> y apunta horizontalmente al marcador</span></div>
+      <div class="sp-step"><div class="sp-step-n">3</div><span>El reactor 3D aparece sobre el marcador — mueve los sliders para cambiar las condiciones de operación</span></div>
+      <div class="sp-step"><div class="sp-step-n">4</div><span>Usa <strong style="color:#5eead4">PAUSA</strong> para congelar la animación y analizar los valores del panel</span></div>
+    </div>
+  </div>
+
+  <button id="btn-iniciar">📷 ACTIVAR CÁMARA</button>
+  <div id="splash-error"></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL SUPERIOR
+════════════════════════════════════ -->
+<div id="panel-top">
+  <div id="chip-reg" class="r-fijo">🔵 LECHO FIJO</div>
+  <div id="grid-res">
+    <div class="ri"><span class="rl">Umf (m/s)</span><span class="rv" id="rUmf">—</span></div>
+    <div class="ri"><span class="rl">Ut (m/s)</span><span class="rv" id="rUt">—</span></div>
+    <div class="ri"><span class="rl">U/Umf</span><span class="rv" id="rRatio">—</span></div>
+    <div class="ri"><span class="rl">ΔP (Pa)</span><span class="rv" id="rDP">—</span></div>
+    <div class="ri"><span class="rl">ΔPmf (Pa)</span><span class="rv" id="rDPmf">—</span></div>
+    <div class="ri"><span class="rl">ε actual</span><span class="rv" id="rEps">—</span></div>
+    <div class="ri"><span class="rl">h lecho (m)</span><span class="rv" id="rH">—</span></div>
+    <div class="ri"><span class="rl">Ar</span><span class="rv" id="rAr">—</span></div>
+    <div class="ri"><span class="rl">Remf</span><span class="rv" id="rRemf">—</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     MANÓMETRO
+════════════════════════════════════ -->
+<div id="mano-wrap">
+  <span class="ml">ΔP</span>
+  <div id="mano-val">— Pa</div>
+  <div id="mano-track">
+    <div id="mano-fill"></div>
+    <div id="mano-linea" style="bottom:50%"></div>
+  </div>
+  <span id="mano-tag">ΔPmf</span>
+</div>
+
+<div id="badge-pausa">⏸ PAUSADO</div>
+
+<!-- ═══════════════════════════════════
+     ESCENA AR
+════════════════════════════════════ -->
+<a-scene
+  arjs="sourceType: webcam; debugUIEnabled: false;"
+  vr-mode-ui="enabled: false"
+  renderer="antialias: true; alpha: true;"
+>
+  <a-marker preset="hiro" id="marcador" smooth="true" smoothCount="14" smoothTolerance="0.02" smoothThreshold="9">
+    <!-- root2: corrige orientación — el eje Y local del marcador es su NORMAL
+         (apunta hacia la cámara cuando el marcador está pegado en una PARED VERTICAL).
+         Rotamos -90° en X para que la altura del reactor coincida con la vertical
+         real del mundo en vez de quedar acostado hacia el espectador. -->
+    <a-entity id="root2" rotation="-90 0 0">
+      <a-entity id="root" position="0 0 0">
+
+        <!-- Base / placa distribuidora -->
+        <a-cylinder position="0 0.01 0" radius="0.35" height="0.03" color="#334155" opacity="0.98" material="depthWrite:true"></a-cylinder>
+
+        <!-- Flechas de gas (entrada) -->
+        <a-cone id="f1" position="-0.18 -0.10 0" radius-bottom="0.05" radius-top="0" height="0.14" color="#3b82f6" opacity="0.95" material="depthWrite:true"></a-cone>
+        <a-cone id="f2" position="0     -0.10 0" radius-bottom="0.05" radius-top="0" height="0.14" color="#3b82f6" opacity="0.95" material="depthWrite:true"></a-cone>
+        <a-cone id="f3" position="0.18  -0.10 0" radius-bottom="0.05" radius-top="0" height="0.14" color="#3b82f6" opacity="0.95" material="depthWrite:true"></a-cone>
+
+        <!-- Contenedor partículas (opacas — antes que las paredes transparentes en el DOM) -->
+        <a-entity id="cpart"></a-entity>
+
+        <!-- Cuerpo reactor — muy transparente, sin escribir en el depth buffer
+             para que NUNCA tape a las partículas que están adentro -->
+        <a-cylinder position="0 0.42 0" radius="0.34" height="0.80" color="#bfdbfe" opacity="0.06" side="double" material="transparent:true; depthWrite:false; depthTest:true"></a-cylinder>
+
+        <!-- Contorno visible del reactor -->
+        <a-cylinder position="0 0.42 0" radius="0.35" height="0.80" color="#5eead4" opacity="0.35" open-ended="true" side="double" segments-radial="24" material="transparent:true; depthWrite:false; depthTest:true"></a-cylinder>
+
+        <!-- Línea de nivel del lecho -->
+        <a-cylinder id="linea-lecho" position="0 0.32 0" radius="0.345" height="0.012" color="#f59e0b" opacity="0.95" material="depthWrite:true"></a-cylinder>
+
+        <!-- Tapa superior -->
+        <a-cylinder position="0 0.83 0" radius="0.35" height="0.025" color="#5eead4" opacity="0.85" material="depthWrite:true"></a-cylinder>
+
+      </a-entity>
+    </a-entity>
+  </a-marker>
+  <a-entity camera></a-entity>
+</a-scene>
+
+<!-- ═══════════════════════════════════
+     PANEL INFERIOR
+════════════════════════════════════ -->
+<div id="panel-bot">
+  <div class="srow">
+    <span class="slbl">U — vel. fluido (m/s)</span>
+    <input type="range" id="sU" min="0" max="0.60" step="0.005" value="0.05"/>
+    <span class="sv" id="vU">0.050 m/s</span>
+  </div>
+  <div class="srow">
+    <span class="slbl">dp — diám. partícula (µm)</span>
+    <input type="range" id="sdp" min="100" max="800" step="10" value="500"/>
+    <span class="sv" id="vdp">500 µm</span>
+  </div>
+  <div class="srow">
+    <span class="slbl">ε — porosidad lecho</span>
+    <input type="range" id="sEps" min="0.35" max="0.95" step="0.01" value="0.42"/>
+    <span class="sv" id="vEps">0.420</span>
+  </div>
+  <div class="srow">
+    <span class="slbl">H0 — altura inicial lecho (m)</span>
+    <input type="range" id="sH0" min="0.10" max="0.50" step="0.01" value="0.30"/>
+    <span class="sv" id="vH0">0.300 m</span>
+  </div>
+  <div class="eps-row">
+    <span class="eps-lbl">Modo ε:</span>
+    <button id="btn-eps">🔄 CALCULADO</button>
+    <span id="eps-desc">ε se calcula automáticamente</span>
+  </div>
+  <button id="btn-pausa">⏸ PAUSA</button>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// PARÁMETROS — Arena SiO₂ + Aire 25°C
+// ════════════════════════════════════════════════
+const P = {rho_p:2650, rho_f:1.184, mu:1.849e-5, phi_s:0.86, g:9.81};
+
+const E = {
+  pausado:false, U:0.05, dp:500e-6, H0:0.30,
+  eps_manual:false, eps_slider:0.42,
+  Ar:0, emf:0, eps0:0, Remf:0, Umf:0,
+  Ret:0, Ut:0, n_rz:0,
+  regimen:'fijo', deltaP:0, deltaP_mf:0, eps:0, h:0,
+};
+
+// ════════════════════════════════════════════════
+// FÍSICA
+// ════════════════════════════════════════════════
+function fisica(){
+  const {rho_p,rho_f,mu,phi_s,g} = P;
+  const {U, dp, H0} = E;
+
+  // Arquímedes — K&L Cap.3, Ec.(20)
+  const Ar = dp**3 * rho_f * (rho_p-rho_f) * g / mu**2;
+
+  // εmf — K&L Cap.3, Tabla 3 (arena redondeada φs=0.86)
+  const mm = dp*1000;
+  let emf = mm<=0.05?0.56 : mm<=0.07?0.56+(mm-0.05)/0.02*(0.52-0.56)
+           : mm<=0.10?0.52+(mm-0.07)/0.03*(0.48-0.52)
+           : mm<=0.20?0.48+(mm-0.10)/0.10*(0.44-0.48)
+           : mm<=0.30?0.44+(mm-0.20)/0.10*(0.42-0.44) : 0.42;
+  const eps0 = emf;
+
+  // Wen & Yu — K&L Cap.3, Ec.(26)
+  const Remf = Math.sqrt(33.7**2 + 0.0408*Ar) - 33.7;
+  const Umf  = Remf * mu / (rho_f * dp);
+
+  // Ut — McCabe Cap.7, criterio K=Ar^(1/3), Ec.(7.45)
+  const K = Ar**(1/3);
+  let Ut, Ret=0;
+  if(K < 2.6){
+    Ut = g*dp**2*(rho_p-rho_f)/(18*mu); // Stokes Ec.(7.40)
+  } else if(K > 68.9){
+    Ut = 1.75*Math.sqrt(g*dp*(rho_p-rho_f)/rho_f); // Newton Ec.(7.43)
+  } else {
+    let ui = Math.sqrt(4*g*dp*(rho_p-rho_f)/(3*rho_f));
+    for(let k=0;k<80;k++){
+      const Re = rho_f*ui*dp/mu;
+      const CD = Re<1 ? 24/Re : 18.5/Re**0.6;
+      const un = Math.sqrt(4*g*dp*(rho_p-rho_f)/(3*rho_f*CD));
+      if(Math.abs(un-ui)/ui<1e-8) break;
+      ui=un;
+    }
+    Ut=ui;
+  }
+  Ret = rho_f*Ut*dp/mu;
+
+  // Régimen
+  const TOL=0.004;
+  const reg = U<Umf-TOL?'fijo' : U<=Umf+TOL?'minima' : U<Ut?'fluidizado':'arrastre';
+
+  const dPmf = H0*(1-eps0)*(rho_p-rho_f)*g;
+  let dP, eps, h, n_rz=0;
+
+  if(E.eps_manual){
+    eps = Math.max(E.eps_slider, emf);
+    h   = H0*(1-eps0)/(1-eps);
+    const Uc=Math.max(U,1e-6);
+    dP  = h*(150*mu*Uc*(1-eps)**2/(phi_s**2*dp**2*eps**3)
+             +1.75*rho_f*Uc**2*(1-eps)/(phi_s*dp*eps**3));
+  } else {
+    if(reg==='fijo'){
+      const Uc=Math.max(U,1e-6);
+      dP = H0*(150*mu*Uc*(1-eps0)**2/(phi_s**2*dp**2*eps0**3)
+               +1.75*rho_f*Uc**2*(1-eps0)/(phi_s*dp*eps0**3));
+      eps=eps0; h=H0;
+    } else if(reg==='minima'){
+      dP=dPmf; eps=emf; h=H0*(1-eps0)/(1-emf);
+    } else if(reg==='fluidizado'){
+      dP=dPmf;
+      n_rz = Ret<0.2?4.65 : Ret<1?4.35*Ret**-0.03 : Ret<500?4.45*Ret**-0.1 : 2.39;
+      eps  = Math.max(Math.min(U/Ut,0.9995)**(1/n_rz), emf);
+      h    = H0*(1-eps0)/(1-eps);
+    } else {
+      dP=dPmf*0.55; eps=0.96; h=H0*(1-eps0)/(1-eps);
+    }
+    document.getElementById('sEps').value = eps.toFixed(2);
+    document.getElementById('vEps').textContent = eps.toFixed(3);
+  }
+
+  Object.assign(E,{Ar,emf,eps0,Remf,Umf,Ret,Ut,n_rz,regimen:reg,deltaP:dP,deltaP_mf:dPmf,eps,h});
+}
+
+// ════════════════════════════════════════════════
+// PARTÍCULAS — 50 esferas dentro del reactor
+// Reactor: base Y=0.02, tope interior Y=0.80
+// Partículas: X en [-0.28,0.28], Y en [0.05,0.78]
+// ════════════════════════════════════════════════
+const N=50, parts=[];
+const cpart=document.getElementById('cpart');
+const YB=0.05, YT=0.78, RM=0.28;
+
+for(let i=0;i<N;i++){
+  const ci=i%8, ri=Math.floor(i/8);
+  const x0=-0.24+ci*(0.48/7);
+  const y0=YB+ri*0.09;
+  const z0=(Math.random()-0.5)*0.08;
+  const s=document.createElement('a-sphere');
+  s.setAttribute('radius','0.022');
+  s.setAttribute('position',`${x0.toFixed(4)} ${y0.toFixed(4)} ${z0.toFixed(4)}`);
+  s.setAttribute('color','#3b82f6');
+  s.setAttribute('opacity','0.97');
+  cpart.appendChild(s);
+  parts.push({el:s, x0, y:y0, z0, fase:Math.random()*Math.PI*2});
+}
+
+const COLS  = {fijo:'#3b82f6',minima:'#f59e0b',fluidizado:'#22c55e',arrastre:'#ef4444'};
+const CHIPS = {
+  fijo:      {txt:'🔵 LECHO FIJO',         cls:'r-fijo'},
+  minima:    {txt:'🟡 FLUIDIZACIÓN MÍNIMA', cls:'r-minima'},
+  fluidizado:{txt:'🟢 LECHO FLUIDIZADO',    cls:'r-fluidizado'},
+  arrastre:  {txt:'🔴 RÉGIMEN DE ARRASTRE', cls:'r-arrastre'},
+};
+
+// ════════════════════════════════════════════════
+// PANEL
+// ════════════════════════════════════════════════
+function panelUpdate(){
+  const {Umf,Ut,U,deltaP,deltaP_mf,eps,h,Ar,Remf,regimen} = E;
+  document.getElementById('rUmf').textContent   = Umf.toFixed(4);
+  document.getElementById('rUt').textContent    = Ut.toFixed(4);
+  document.getElementById('rRatio').textContent = Umf>0?(U/Umf).toFixed(2):'—';
+  document.getElementById('rDP').textContent    = deltaP.toFixed(1);
+  document.getElementById('rDPmf').textContent  = deltaP_mf.toFixed(1);
+  document.getElementById('rEps').textContent   = eps.toFixed(4);
+  document.getElementById('rH').textContent     = h.toFixed(3);
+  document.getElementById('rAr').textContent    = Ar.toFixed(0);
+  document.getElementById('rRemf').textContent  = Remf.toFixed(4);
+  const c = CHIPS[regimen];
+  const chip = document.getElementById('chip-reg');
+  chip.textContent=c.txt; chip.className=c.cls;
+  const mx = Math.max(deltaP_mf*1.5, 1);
+  document.getElementById('mano-fill').style.height  = Math.min(deltaP/mx*100,100)+'%';
+  document.getElementById('mano-fill').style.background = COLS[regimen];
+  document.getElementById('mano-val').textContent   = deltaP.toFixed(0)+' Pa';
+  document.getElementById('mano-linea').style.bottom = Math.min(deltaP_mf/mx*100,100)+'%';
+}
+
+// ════════════════════════════════════════════════
+// AR UPDATE
+// ════════════════════════════════════════════════
+const lineaLecho = document.getElementById('linea-lecho');
+const f1=document.getElementById('f1');
+const f2=document.getElementById('f2');
+const f3=document.getElementById('f3');
+let t=0;
+
+function arUpdate(){
+  if(E.pausado) return;
+  const {regimen,h,Umf,Ut,U,dp} = E;
+  const col = COLS[regimen];
+
+  // Línea de nivel del lecho
+  const hAR    = Math.min(h, 0.74);
+  const yNivel = 0.02 + hAR;
+  lineaLecho.setAttribute('position',`0 ${yNivel.toFixed(4)} 0`);
+  lineaLecho.setAttribute('color', col);
+
+  // Flechas de gas
+  const ef = Math.max(0.5, Math.min(U/0.08, 2.2));
+  [f1,f2,f3].forEach(f=>{
+    f.setAttribute('scale',`${ef.toFixed(2)} ${ef.toFixed(2)} ${ef.toFixed(2)}`);
+    f.setAttribute('color', regimen==='fijo'?'#3b82f6':col);
+  });
+
+  // Radio partículas según dp
+  const radP = (0.014+(dp*1e6-100)/700*0.018).toFixed(4);
+  const yMax = 0.02+hAR;
+
+  parts.forEach((p,i)=>{
+    let nx=p.x0, ny=p.y, nz=p.z0;
+
+    if(regimen==='fijo'){
+      const ci=i%8, ri=Math.floor(i/8);
+      nx=-0.23+ci*(0.46/7);
+      ny=YB+ri*0.085; ny=Math.min(ny,yMax-0.02);
+      nz=((p.fase*7)%0.08)-0.04;
+      ny+=Math.sin(t*0.8+p.fase)*0.002;
+      p.x0=nx; p.y=ny; p.z0=nz;
+
+    } else if(regimen==='minima'){
+      if(i<25){
+        const ci2=i%5, ri2=Math.floor(i/5);
+        nx=-0.18+ci2*0.09; ny=YB+ri2*0.075;
+        ny=Math.min(ny,0.02+hAR*0.52);
+        nz=((p.fase*5)%0.06)-0.03;
+        ny+=Math.sin(t*1.5+p.fase)*0.006;
+      } else {
+        ny=p.y+Math.sin(t*3+p.fase)*0.014;
+        nx=p.x0+Math.sin(t*2+p.fase)*0.009;
+        ny=Math.max(YB,Math.min(ny,yMax*0.88));
+        nx=Math.max(-RM,Math.min(nx,RM));
+      }
+      p.x0=nx; p.y=ny; p.z0=nz;
+
+    } else if(regimen==='fluidizado'){
+      const ratio=Math.min((U-Umf)/Math.max(Ut-Umf,0.01),1.0);
+      const spd=0.005+ratio*0.014;
+      ny=p.y+spd;
+      nx=p.x0+Math.sin(t*2+p.fase)*0.009;
+      nz=p.z0+Math.cos(t*1.7+p.fase)*0.005;
+      nx=Math.max(-RM,Math.min(nx,RM));
+      if(ny>yMax-0.02){
+        ny=YB+Math.random()*0.04;
+        p.x0=(Math.random()-0.5)*RM*1.7;
+        p.z0=(Math.random()-0.5)*0.06;
+      } else { p.x0=nx; p.z0=nz; }
+      p.y=ny;
+
+    } else {
+      ny=p.y+0.016+Math.random()*0.008;
+      nx=p.x0+Math.sin(t*1.5+p.fase)*0.007;
+      nx=Math.max(-RM,Math.min(nx,RM));
+      if(ny>YT+0.12){
+        ny=YB+Math.random()*0.04;
+        p.x0=(Math.random()-0.5)*RM*1.5;
+        p.z0=(Math.random()-0.5)*0.05;
+      } else { p.x0=nx; }
+      p.y=ny;
+    }
+
+    p.el.setAttribute('position',`${nx.toFixed(4)} ${ny.toFixed(4)} ${nz.toFixed(4)}`);
+    p.el.setAttribute('color', col);
+    p.el.setAttribute('radius', radP);
+  });
+  t+=0.04;
+}
+
+// ════════════════════════════════════════════════
+// SLIDERS
+// ════════════════════════════════════════════════
+function onSlider(){
+  E.U          = parseFloat(document.getElementById('sU').value);
+  E.dp         = parseFloat(document.getElementById('sdp').value)*1e-6;
+  E.eps_slider = parseFloat(document.getElementById('sEps').value);
+  E.H0         = parseFloat(document.getElementById('sH0').value);
+  document.getElementById('vU').textContent  = E.U.toFixed(3)+' m/s';
+  document.getElementById('vdp').textContent = (E.dp*1e6).toFixed(0)+' µm';
+  document.getElementById('vH0').textContent = E.H0.toFixed(3)+' m';
+  if(E.eps_manual) document.getElementById('vEps').textContent = E.eps_slider.toFixed(3);
+  fisica(); panelUpdate();
+}
+document.getElementById('sU').addEventListener('input',onSlider);
+document.getElementById('sdp').addEventListener('input',onSlider);
+document.getElementById('sEps').addEventListener('input',onSlider);
+document.getElementById('sH0').addEventListener('input',onSlider);
+
+// Botón modo ε
+const btnEps=document.getElementById('btn-eps');
+const epsDesc=document.getElementById('eps-desc');
+btnEps.addEventListener('click',()=>{
+  E.eps_manual=!E.eps_manual;
+  if(E.eps_manual){
+    btnEps.textContent='✏️ MANUAL';
+    btnEps.style.color='#f59e0b';
+    btnEps.style.borderColor='rgba(245,158,11,0.6)';
+    epsDesc.textContent='ε fijada manualmente';
+    epsDesc.style.color='rgba(245,158,11,0.7)';
+  } else {
+    btnEps.textContent='🔄 CALCULADO';
+    btnEps.style.color='#5eead4';
+    btnEps.style.borderColor='rgba(94,234,212,0.5)';
+    epsDesc.textContent='ε se calcula automáticamente';
+    epsDesc.style.color='rgba(255,255,255,0.4)';
+  }
+  fisica(); panelUpdate();
+});
+
+// Pausa
+const btnP=document.getElementById('btn-pausa');
+const badge=document.getElementById('badge-pausa');
+btnP.addEventListener('click',()=>{
+  E.pausado=!E.pausado;
+  btnP.textContent=E.pausado?'▶ REANUDAR':'⏸ PAUSA';
+  btnP.classList.toggle('pausado',E.pausado);
+  badge.style.display=E.pausado?'block':'none';
+});
+
+// Loop
+function loop(){
+  if(!E.pausado){ fisica(); panelUpdate(); arUpdate(); }
+  requestAnimationFrame(loop);
+}
+
+// ════════════════════════════════════════════════
+// ACTIVAR CÁMARA
+// ════════════════════════════════════════════════
+document.getElementById('btn-iniciar').addEventListener('click',async()=>{
+  const btn=document.getElementById('btn-iniciar');
+  const err=document.getElementById('splash-error');
+  btn.textContent='⏳ Solicitando acceso...';
+  btn.disabled=true;
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    s.getTracks().forEach(t=>t.stop());
+    document.getElementById('splash').style.display='none';
+    document.getElementById('panel-top').style.display='flex';
+    document.getElementById('panel-bot').style.display='flex';
+    document.getElementById('mano-wrap').style.display='flex';
+    onSlider();
+    loop();
+  }catch(e){
+    err.style.display='block';
+    err.textContent=e.name==='NotAllowedError'
+      ?'⚠️ Permiso denegado. Ve a Configuración → Cámara, activa el permiso y recarga la página.'
+      :'⚠️ Error al acceder a la cámara: '+e.message;
+    btn.textContent='📷 REINTENTAR';
+    btn.disabled=false;
+  }
+});
+</script>
+</body>
+</html>
